@@ -8,11 +8,15 @@ let handler = async (m, { conn }) => {
 	let mime = (q.msg || q).mimetype || ''
 	if (/image/g.test(mime) && !/webp/g.test(mime)) {
 		await m.reply(wait)
+		try {
 		let img = await q.download?.()
 			let out = await uploadImage(img)
 let neo = new NeoxrApi('kyaOnechan')
 let sauce = await neo.remini(out)
-		await conn.sendFile(m.chat, sauce.data.url, null, '', m)
+		await conn.sendFile(m.chat, sauce.data.url, '', '*[ REMINI ]*', m)
+		} catch (e) {
+		await m.reply(eror)
+		}
 	} else throw 'Reply imagenya'
 }
 handler.help = ["remini"]

@@ -18,12 +18,12 @@ let handler = async (m, {
         let search = await GoogleIt({
             query: text
         })
-        let msg = search.map((v, index) => `${htki + " " + ++index + " " + htka}\n*${v.title}*\n  *○ Link:* ${v.link}\n  *○ Snippet:* ${v.snippet}`).join("\n\n")
+        let msg = search.map((v, index) => `${htki + " " + ++index + " " + htka}\n*${v.title || 'Tidak terdeteksi'}*\n  *○ Link:* ${v.link || 'Tidak terdeteksi'}\n  *○ Snippet:* ${v.snippet || 'Tidak terdeteksi'}`).join("\n\n")
         await conn.sendFile(m.chat, ss, "", msg, m)
     } catch (e) {
         try {
             let data = await googleIt(text)
-            let msg = data.articles.map((v, index) => `${htki + " " + ++index + " " + htka}\n*${v.title}*\n  *○ Link:* ${v.url}\n  *○ Snippet:* ${v.description}`).join("\n\n")
+            let msg = data.articles.map((v, index) => `${htki + " " + ++index + " " + htka}\n*${v.title || 'Tidak terdeteksi'}*\n  *○ Link:* ${v.url || 'Tidak terdeteksi'}\n  *○ Snippet:* ${v.description || 'Tidak terdeteksi'}`).join("\n\n")
             if (!msg.length) throw `Query "${text}" Not Found`
         await conn.sendFile(m.chat, ss, "", msg, m)
         } catch (e) {
@@ -33,7 +33,7 @@ let handler = async (m, {
                 var url = "http://api.serpstack.com/search?access_key=" + API_KEY + "&type=web&query=" + query
                 let a = await (await fetch(url)).json()
                 let b = a.organic_results
-                let c = b.map((v, index) => `${htki + " " + ++index + " " + htka}\n*${v.title}*\n  *○ Link:* ${v.url}\n  *○ Snippet:* ${v.snippet}`).join("\n\n")
+                let c = b.map((v, index) => `${htki + " " + ++index + " " + htka}\n*${v.title || 'Tidak terdeteksi'}*\n  *○ Link:* ${v.url || 'Tidak terdeteksi'}\n  *○ Snippet:* ${v.snippet || 'Tidak terdeteksi'}`).join("\n\n")
         await conn.sendFile(m.chat, ss, "", msg, m)
             } catch (e) {
                 await m.reply(eror)
