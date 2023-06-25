@@ -39,7 +39,7 @@
     },
     "license": "GPL-3.0-or-later",
     "dependencies": {
-        "@adiwajshing/baileys": "npm:@whiskeysockets/baileys@6.2.1",
+        "@adiwajshing/baileys": "npm:baileysv2@*",
         "@adiwajshing/keyed-db": "*",
         "@arugaz/ai2d": "*",
         "@bochilteam/scraper": "*",
