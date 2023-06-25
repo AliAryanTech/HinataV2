@@ -12,9 +12,9 @@ let handler = async (m, { args, usedPrefix, command }) => {
 	let lister = Object.keys(await langList())
 	let supp = `Error : Bahasa"${lang}" Tidak Support`
 	if (!lister.includes(lang)) return m.reply(supp + "\n\n*Example:*\n." + command + " id hello\n\n*Pilih kode yg ada*\n" + lister.map((v, index) => `${index +1}. ${v}`).join('\n'))
-	const regionNamesInEnglish = new Intl.DisplayNames(['en'], { type: 'region' });
-	let Detect = regionNamesInEnglish.of(res[2].toUpperCase() ? res[2].toUpperCase() : 'US')
-	let ToLang = regionNamesInEnglish.of(lang.toUpperCase())
+	
+	let Detect = (res[2].toUpperCase() ? res[2].toUpperCase() : 'US')
+	let ToLang = (lang.toUpperCase())
 	let caption = `*[ Terdeteksi ]*
 - ${Detect}
 

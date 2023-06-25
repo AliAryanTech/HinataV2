@@ -9,9 +9,9 @@ let handler = async (m, { args, usedPrefix, command }) => {
 	} else throw `Ex: ${usedPrefix + command} id hello i am robot`
 	let res = await translate(text, { to: lang, autoCorrect: true }).catch(_ => null)
 	if (!res) throw "Error : Bahasa *" + lang + "* Tidak Support"
-	const regionNamesInEnglish = new Intl.DisplayNames(["en"], { type: "region" });
-	let Detect = regionNamesInEnglish.of(res.from.language.iso.toUpperCase() ? res.from.language.iso.toUpperCase() : "US")
-	let ToLang = regionNamesInEnglish.of(lang.toUpperCase())
+	
+	let Detect = (res.from.language.iso.toUpperCase() ? res.from.language.iso.toUpperCase() : "US")
+	let ToLang = (lang.toUpperCase())
 	let caption = `*[ Terdeteksi ]*
 - ${Detect}
 
