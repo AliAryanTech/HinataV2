@@ -39,8 +39,7 @@
     },
     "license": "GPL-3.0-or-later",
     "dependencies": {
-        "@adiwajshing/baileys": "npm:baileysv2@*",
-        "@adiwajshing/keyed-db": "*",
+        "@adiwajshing/baileys": "npm:@whiskeysockets/baileys@*",
         "@arugaz/ai2d": "*",
         "@bochilteam/scraper": "*",
         "@ibaraki-douji/pixivts": "*",
@@ -131,7 +130,6 @@
         "url-regex-safe": "*",
         "wa-sticker-formatter": "*",
         "wibusoft": "*",
-        "ws": "*",
         "yargs": "*",
         "yt-search": "*",
         "ytdl-core": "*",
