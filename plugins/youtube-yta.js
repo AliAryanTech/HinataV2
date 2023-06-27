@@ -10,11 +10,11 @@ let handler = async (m, {
     args
 }) => {
     if (!args[0]) throw "[ Masukkan Url Youtube! ]"
-
+    await conn.reply(m.chat, wait, m)
     try {
-        await m.reply(wait)
+        
         let Ytdl = await ytmp3(args[0])
-        let dls = "Downloading audio succes"
+        let dls = "Download audio succes ( V1 )"
         let ytthumb = await (await conn.getFile(Ytdl.meta.image)).data
         let doc = {
             audio: Ytdl.buffer,
@@ -39,11 +39,11 @@ let handler = async (m, {
 
     } catch {
         try {
-            await m.reply(wait)
+            
             let yt = await youtubedlv2(args[0]).catch(async _ => await youtubedl(args[0]))
             let link = await yt.audio["128kbps"].download()
             let ytl = "https://youtube.com/watch?v="
-            let dls = "Downloading audio succes"
+            let dls = "Download audio succes ( V2 )"
             let ytthumb = await (await conn.getFile(yt.thumbnail)).data
             let doc = {
                 audio: {
@@ -70,7 +70,7 @@ let handler = async (m, {
 
         } catch {
             try {
-                await m.reply(wait)
+                
                 let lolhuman = await fetch(`https://api.lolhuman.xyz/api/ytaudio2?apikey=${lolkey}&url=${args[0]}`)
                 let lolh = await lolhuman.json()
                 let n = lolh.result.title || "error"

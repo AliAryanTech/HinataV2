@@ -19,8 +19,10 @@ let handler = async (m, {
     if (!args[0].match(/youtu/gi)) throw `❎ Verify that the YouTube link`
     let q = args[1] || "360p"
     let v = args[0]
+    await conn.reply(m.chat, wait, m)
+    
     try {
-        await m.reply(wait)
+        
         let item = await ytmp4(args[0], q.split("p")[0])
         if ((item.contentLength).split("MB")[0] >= limit) return m.reply(` ≡  *YT Downloader V1*\n\n*⚖️Size* : ${item.contentLength}\n*🎞️Quality* : ${item.quality}\n\n_The file exceeds the download limit_ *+${limit} MB*\n\n*Link:*\n${await shortUrl(item.videoUrl)}`)
         let captvid = `🔍 *[ RESULT V1 ]*
@@ -60,7 +62,7 @@ let handler = async (m, {
 
     } catch {
         try {
-            await m.reply(wait)
+            
             const yt = await youtubedl(v).catch(async () => await youtubedlv2(v))
             const dl_url = await yt.video[q].download()
             const title = await yt.title
@@ -101,7 +103,7 @@ let handler = async (m, {
 
         } catch (e) {
             try {
-                await m.reply(wait)
+                
                 const {
                     title,
                     result,

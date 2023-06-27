@@ -9,8 +9,8 @@ let handler = async (m, {
     command
 }) => {
     if (!args || !args[0]) throw `✳️ Example :\n${usedPrefix + command} youtube link (playlist)`
+    await conn.reply(m.chat, wait, m)
     
-    await m.reply(wait)
     try {
         let q = args[1] || "360"
         let v = args[0]
