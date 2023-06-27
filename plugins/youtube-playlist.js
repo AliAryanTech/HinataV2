@@ -26,7 +26,7 @@ let handler = async (m, {
 }
 handler.help = ["playlist", "v", ""].map(v => "yt" + v + ` <url> <without message>`)
 handler.tags = ["downloader"]
-handler.command = /^y(outube(playlist|playlistdl)|t((playlist|v)|playlistdl))$/i
+handler.command = /^y(outube(playlist|playlistdl)|t((playlist)|playlistdl))$/i
 
 handler.exp = 0
 handler.register = false
