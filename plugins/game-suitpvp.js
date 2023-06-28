@@ -8,7 +8,7 @@ let poin_lose = -100
 let handler = async (m, { conn, usedPrefix }) => {
   conn.suit = conn.suit ? conn.suit : {}
   if (Object.values(conn.suit).find(room => room.id.startsWith('suit') && [room.p, room.p2].includes(m.sender))) throw 'Selesaikan suit mu yang sebelumnya'
-  if (!m.mentionedJid[0]) return m.reply(`_Siapa yang ingin kamu tantang?_\nTag orangnya.. Contoh\n\n${usedPrefix}suit @${owner[1]}`, m.chat, { contextInfo: { mentionedJid: [owner[1] + '@s.whatsapp.net'] } })
+  if (!m.mentionedJid[0]) return m.reply(`_Siapa yang ingin kamu tantang?_\nTag orangnya.. Contoh\n\n${usedPrefix}suit @${(conn.user.jid).split('@')[0]}`, m.chat, { contextInfo: { mentionedJid: [conn.user.jid] } })
   if (Object.values(conn.suit).find(room => room.id.startsWith('suit') && [room.p, room.p2].includes(m.mentionedJid[0]))) throw `Orang yang kamu tantang sedang bermain suit bersama orang lain :(`
   let id = 'suit_' + new Date() * 1
   let caption = `
@@ -20,7 +20,7 @@ Silahkan @${m.mentionedJid[0].split`@`[0]}
 `.trim()
   let footer = `Ketik "terima/ok/gas" untuk memulai suit\nKetik "tolak/gabisa/nanti" untuk menolak`
   conn.suit[id] = {
-    chat: await conn.sendButton(m.chat, caption, author, null, [[ 'Terima', 'ok'], [ 'Tolak', 'tolak']], m, { mentions: conn.parseMention(caption) }),
+    chat: await conn.reply(m.chat, caption, null, { mentions: conn.parseMention(caption) }),
     id: id,
     p: m.sender,
     p2: m.mentionedJid[0],

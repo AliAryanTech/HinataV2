@@ -26,6 +26,8 @@ conn.level = global.db.data.users[m.sender]
   let alasanMenang = ['Hebat','Pro','Ganas Pet','Legenda Pet','Sangat Pro','Rajin Ngasi Makan Pet']
 
   let kesempatan = []
+  let i
+  let unggul
   for (i=0;i<global.db.data.users[m.sender].kyubi;i++) kesempatan.push(m.sender)
   for (i=0;i<global.db.data.users[lawan].kyubi;i++) kesempatan.push(lawan)
 

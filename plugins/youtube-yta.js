@@ -99,7 +99,7 @@ handler.limit = true
 
 export default handler
 
-async function ytmp3(url, metadata = {}, autoWriteTags = false) {
+async function ytmp3(url) {
     try {
         const {
             videoDetails
@@ -123,19 +123,6 @@ async function ytmp3(url, metadata = {}, autoWriteTags = false) {
         });
 
         const buffer = Buffer.concat(chunks);
-
-        if (Object.keys(metadata).length !== 0) {
-            await this.WriteTags(dataUrl, metadata);
-        }
-
-        if (autoWriteTags) {
-            await this.WriteTags(dataUrl, {
-                Title: videoDetails.title,
-                Album: videoDetails.author.name,
-                Year: videoDetails.publishDate.split("-")[0],
-                Image: videoDetails.thumbnails.slice(-1)[0].url,
-            });
-        }
 
         return {
             meta: {

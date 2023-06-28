@@ -1,98 +1,112 @@
-import fetch from 'node-fetch'
-import axios from 'axios'
-import { pinterest } from '@bochilteam/scraper'
-import { readFileSync } from 'fs'
+import fetch from "node-fetch"
+import axios from "axios"
+import cheerio from "cheerio"
+import { pinterest } from "@bochilteam/scraper"
+import { readFileSync } from "fs"
+const dylux = await (await import("api-dylux")).default
 
-let handler = async(m, { conn, groupMetadata, usedPrefix, text, args, command }) => {
-  let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
-let pp = await conn.profilePictureUrl(who).catch(_ => hwaifu.getRandom())
-let name = await conn.getName(who)
-    let type = (args[0] || '').toLowerCase()
-    let urut = text.split`|`
-    let one = urut[1]
-    let caption = `*Hasil pencarian* ${one}`
-    if (!text) throw 'Masukkan Teks\nApa yang kamu cari?'
-  
-const sections = [
-    {
-	title: htjava + ' List Pinterest Search ' + htjava,
-	rows: [
-{title: emojis + " Powered By api.lolhuman.xyz", rowId: usedPrefix + command + ' pinterest |' + text},
-{title: emojis + " Powered By bochilteam", rowId: usedPrefix + command + ' pinterest1 |' + text},
-{title: emojis + " Powered By api.lolhuman.xyz", rowId: usedPrefix + command + ' pinterest2 |' + text},
-{title: emojis + " Powered By api.vhtear.com", rowId: usedPrefix + command + ' pinterest3 |' + text},
-{title: emojis + " Powered By violetics.pw", rowId: usedPrefix + command + ' pinterest4 |' + text}
-	]
-    }
-]
+let handler = async (m, {
+    conn,
+    args,
+    usedPrefix,
+    text,
+    command
+}) => {
 
-const listMessage = {
-  text: '👋 Hai, ' + name + ' ' + ucapan + '\n⚡ Silakan pilih pencarian di bawah...',
-  footer: global.wm,
-  title: `${htki} ${command} ${htka}`,
-  buttonText: `☂️ Klik Disini ☂️`,
-  sections
-}
+    let lister = [
+        "v1",
+        "v2",
+        "v3",
+        "v4"
+    ]
 
+    let [feature, inputs, inputs_, inputs__, inputs___] = text.split("|")
+    if (!lister.includes(feature.toLowerCase())) return m.reply("*Example:*\n.pinterest v2|vpn\n\n*Pilih type yg ada*\n" + lister.map((v, index) => "  ○ " + v.toUpperCase()).join("\n"))
 
-try {
-               if (/pinterest|pin/i.test(command)) {
-          switch (type) {
-case 'pinterest':
-let js0 = await fetch(`https://api.lolhuman.xyz/api/pinterest?apikey=${global.lolkey}&query=${one}`)
-let jp0 = await js0.json()
-let x0 = jp0.result
-await conn.sendButton(m.chat, caption, wm, x0, [
-      ['Pinterest', usedPrefix + command + ' ' + one]
-    ], fakes)
-    break
+    if (lister.includes(feature.toLowerCase())) {
 
-case 'pinterest1':
-let js6 = await pinterest(one)
-  await conn.sendButton(m.chat, caption, wm, js6.getRandom(), [
-      ['Pinterest', usedPrefix + command + ' ' + one]
-    ], fakes)
-break
-
-case 'pinterest2':
-let js7 = await fetch(`https://api.lolhuman.xyz/api/pinterest2?apikey=${global.lolkey}&query=${one}`)
-let jp7 = await js7.json()
-let x7 = jp7.result
-await conn.sendButton(m.chat, caption, wm, x7.getRandom(), [
-      ['Pinterest', usedPrefix + command + ' ' + one]
-    ], fakes)
-    break
-
-case 'pinterest3':
-let js9 = await fetch(`https://api.vhtear.com/pinterest?query=${one}&apikey=nekobotofficial`)
-let jp9 = await js9.json()
-let x9 = jp9.result
-await conn.sendButton(m.chat, caption, wm, x9.getRandom(), [
-      ['Pinterest', usedPrefix + command + ' ' + one]
-    ], fakes)
-break
-
-case 'pinterest4':
-let js10 = await fetch(`https://violetics.pw/api/downloader/pinterest2?apikey=beta&url=${one}`)
-let jp10 = js10.data
-let x10 = jp10.result
-await conn.sendButton(m.chat, caption, wm, x10, [
-      ['Pinterest', usedPrefix + command + ' ' + one]
-    ], fakes)
-break
-
-
-                       default:
-                        return conn.sendMessage(m.chat, listMessage, {quoted: fakes})
-                }
+        if (feature == "v1") {
+            if (!inputs) return m.reply("Input query link\nExample: .pinterest v2|jokowi")
+            await m.reply(wait)
+            try {
+                let res = await pinterest(inputs)
+                let teks = "🔍 *[ RESULT ]*"
+                await conn.sendFile(m.chat, res.getRandom() || logo, "", teks, m)
+            } catch (e) {
+                await m.reply(eror)
+            }
         }
-    } catch (e) {
-        conn.reply(m.chat, 'Error', m)
-        console.log(e)
+
+        if (feature == "v2") {
+            if (!inputs) return m.reply("Input query link\nExample: .pinterest v2|jokowi")
+            await m.reply(wait)
+            try {
+                let res = await searchPinterest(inputs)
+                let teks = "🔍 *[ RESULT ]*"
+                await conn.sendFile(m.chat, res.getRandom() || logo, "", teks, m)
+            } catch (e) {
+                await m.reply(eror)
+            }
+        }
+        
+        if (feature == "v3") {
+            if (!inputs) return m.reply("Input query link\nExample: .pinterest v2|jokowi")
+            await m.reply(wait)
+            try {
+                let res = await(await fetch("https://api.lolhuman.xyz/api/pinterest2?apikey=" + lolkey + "&query=" + inputs)).json()
+                let teks = "🔍 *[ RESULT ]*"
+                await conn.sendFile(m.chat, ((res.result).getRandom()) || logo, "", teks, m)
+            } catch (e) {
+                await m.reply(eror)
+            }
+        }
+        
+        if (feature == "v4") {
+            if (!inputs) return m.reply("Input query link\nExample: .pinterest v2|jokowi")
+            await m.reply(wait)
+            try {
+                let res = await dylux.pinterest(inputs)
+                let teks = "🔍 *[ RESULT ]*"
+                await conn.sendFile(m.chat, (res.getRandom()).replace(/236/g, "736") || logo, "", teks, m)
+            } catch (e) {
+                await m.reply(eror)
+            }
+        }
+        
     }
 }
-handler.help = ['pinterest <query>']
-handler.command = /^pin(terest)$/i
-handler.tags = ['random']
-
+handler.help = ["pinterest"]
+handler.tags = ["internet"]
+handler.command = /^(pinterest)$/i
 export default handler
+
+/* New Line */
+async function searchPinterest(query) {
+  try {
+    const response = await fetch(`https://id.pinterest.com/search/pins/?autologin=true&q=${query}`, {
+      headers: {
+        "cookie": "_auth=1; _b=\"AVna7S1p7l1C5I9u0+nR3YzijpvXOPc6d09SyCzO+DcwpersQH36SmGiYfymBKhZcGg=\"; _pinterest_sess=TWc9PSZHamJOZ0JobUFiSEpSN3Z4a2NsMk9wZ3gxL1NSc2k2NkFLaUw5bVY5cXR5alZHR0gxY2h2MVZDZlNQalNpUUJFRVR5L3NlYy9JZkthekp3bHo5bXFuaFZzVHJFMnkrR3lTbm56U3YvQXBBTW96VUgzVUhuK1Z4VURGKzczUi9hNHdDeTJ5Y2pBTmxhc2owZ2hkSGlDemtUSnYvVXh5dDNkaDN3TjZCTk8ycTdHRHVsOFg2b2NQWCtpOWxqeDNjNkk3cS85MkhhSklSb0hwTnZvZVFyZmJEUllwbG9UVnpCYVNTRzZxOXNJcmduOVc4aURtM3NtRFo3STlmWjJvSjlWTU5ITzg0VUg1NGhOTEZzME9SNFNhVWJRWjRJK3pGMFA4Q3UvcHBnWHdaYXZpa2FUNkx6Z3RNQjEzTFJEOHZoaHRvazc1c1UrYlRuUmdKcDg3ZEY4cjNtZlBLRTRBZjNYK0lPTXZJTzQ5dU8ybDdVS015bWJKT0tjTWYyRlBzclpiamdsNmtpeUZnRjlwVGJXUmdOMXdTUkFHRWloVjBMR0JlTE5YcmhxVHdoNzFHbDZ0YmFHZ1VLQXU1QnpkM1FqUTNMTnhYb3VKeDVGbnhNSkdkNXFSMXQybjRGL3pyZXRLR0ZTc0xHZ0JvbTJCNnAzQzE0cW1WTndIK0trY05HV1gxS09NRktadnFCSDR2YzBoWmRiUGZiWXFQNjcwWmZhaDZQRm1UbzNxc21pV1p5WDlabm1UWGQzanc1SGlrZXB1bDVDWXQvUis3elN2SVFDbm1DSVE5Z0d4YW1sa2hsSkZJb1h0MTFpck5BdDR0d0lZOW1Pa2RDVzNySWpXWmUwOUFhQmFSVUpaOFQ3WlhOQldNMkExeDIvMjZHeXdnNjdMYWdiQUhUSEFBUlhUVTdBMThRRmh1ekJMYWZ2YTJkNlg0cmFCdnU2WEpwcXlPOVZYcGNhNkZDd051S3lGZmo0eHV0ZE42NW8xRm5aRWpoQnNKNnNlSGFad1MzOHNkdWtER0xQTFN5Z3lmRERsZnZWWE5CZEJneVRlMDd2VmNPMjloK0g5eCswZUVJTS9CRkFweHc5RUh6K1JocGN6clc1JmZtL3JhRE1sc0NMTFlpMVErRGtPcllvTGdldz0=; _ir=0"
+      }
+    });
+
+    const data = await response.text();
+    const $ = cheerio.load(data);
+    const result = [];
+    const hasil = [];
+
+    $("div > a").get().map(b => {
+      const link = $(b).find("img").attr("src");
+      result.push(link);
+    });
+
+    result.forEach(v => {
+      if (v == undefined) return;
+      hasil.push(v.replace(/236/g, "736"));
+    });
+
+    hasil.shift();
+    return hasil;
+  } catch (error) {
+    throw new Error(error);
+  }
+}

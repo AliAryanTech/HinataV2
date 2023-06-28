@@ -3,38 +3,40 @@ import fetch from "node-fetch"
 import {
     googleIt
 } from "@bochilteam/scraper"
-const GoogleIt = await (await import("google-it")).default
+import GoogleIt from "google-it"
 
 let handler = async (m, {
+    command,
+    usedPrefix,
     conn,
-    text
+    args
 }) => {
-    if (!text) throw "Input Query"
-    let ss = flaaa.getRandom() + "Google"
+    let text
+    if (args.length >= 1) {
+        text = args.slice(0).join(" ")
+    } else if (m.quoted && m.quoted.text) {
+        text = m.quoted.text
+    } else throw "Input teks atau reply teks yang ingin di cari!"
+    let google_img = "https://telegra.ph/file/cf62f2b8648a352548978.jpg"
     await m.reply(wait)
     try {
-        if (!text) return conn.reply(m.chat, "Input Query", m)
-        let url = "https://google.com/search?q=" + encodeURIComponent(text)
         let search = await GoogleIt({
             query: text
         })
-        let msg = search.map((v, index) => `${htki + " " + ++index + " " + htka}\n*${v.title || 'Tidak terdeteksi'}*\n  *○ Link:* ${v.link || 'Tidak terdeteksi'}\n  *○ Snippet:* ${v.snippet || 'Tidak terdeteksi'}`).join("\n\n")
-        await conn.sendFile(m.chat, ss, "", msg, m)
+        let caption = search.map((v, index) => `${htki + " " + ++index + " " + htka}\n*${v.title || 'Tidak terdeteksi'}*\n  *○ Link:* ${v.link || 'Tidak terdeteksi'}\n  *○ Snippet:* ${v.snippet || 'Tidak terdeteksi'}`).join("\n\n")
+        await conn.sendFile(m.chat, google_img, "", caption, m)
     } catch (e) {
         try {
-            let data = await googleIt(text)
-            let msg = data.articles.map((v, index) => `${htki + " " + ++index + " " + htka}\n*${v.title || 'Tidak terdeteksi'}*\n  *○ Link:* ${v.url || 'Tidak terdeteksi'}\n  *○ Snippet:* ${v.description || 'Tidak terdeteksi'}`).join("\n\n")
-            if (!msg.length) throw `Query "${text}" Not Found`
-        await conn.sendFile(m.chat, ss, "", msg, m)
+            let search = await googleIt(text)
+            let caption = search.articles.map((v, index) => `${htki + " " + ++index + " " + htka}\n*${v.title || 'Tidak terdeteksi'}*\n  *○ Link:* ${v.url || 'Tidak terdeteksi'}\n  *○ Snippet:* ${v.description || 'Tidak terdeteksi'}`).join("\n\n")
+            if (!caption.length) throw `Query "${text}" Not Found`
+        await conn.sendFile(m.chat, google_img, "", caption, m)
         } catch (e) {
             try {
-                var query = text
-                var API_KEY = "7d3eb92cb730ed676d5afbd6c902ac1f"
-                var url = "http://api.serpstack.com/search?access_key=" + API_KEY + "&type=web&query=" + query
-                let a = await (await fetch(url)).json()
-                let b = a.organic_results
-                let c = b.map((v, index) => `${htki + " " + ++index + " " + htka}\n*${v.title || 'Tidak terdeteksi'}*\n  *○ Link:* ${v.url || 'Tidak terdeteksi'}\n  *○ Snippet:* ${v.snippet || 'Tidak terdeteksi'}`).join("\n\n")
-        await conn.sendFile(m.chat, ss, "", msg, m)
+                let API_KEY = "7d3eb92cb730ed676d5afbd6c902ac1f"
+                let search = await (await fetch("http://api.serpstack.com/search?access_key=" + API_KEY + "&type=web&query=" + text)).json()
+                let caption = search.organic_results.map((v, index) => `${htki + " " + ++index + " " + htka}\n*${v.title || 'Tidak terdeteksi'}*\n  *○ Link:* ${v.url || 'Tidak terdeteksi'}\n  *○ Snippet:* ${v.snippet || 'Tidak terdeteksi'}`).join("\n\n")
+        await conn.sendFile(m.chat, google_img, "", caption, m)
             } catch (e) {
                 await m.reply(eror)
             }
