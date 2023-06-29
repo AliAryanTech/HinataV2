@@ -180,47 +180,47 @@ let handler = async (m, {
                 frequency_penalty: 0.0,
                 presence_penalty: 0.0
             });
-            await m.reply("*Result:*" + response.data.choices[0].text + "\n\n" + "*Made by:* " + "OpenAi")
+            await m.reply("*Result:*\n\n" + response.data.choices[0].text + "\n\n" + "*Made by:* " + "OPENAI")
         } catch (e) {
             try {
                 let result = await CleanDx(text)
-                await m.reply("*Result:*" + result + "\n\n" + "*Made by:* " + "CleanDx")
+                await m.reply("*Result:*\n\n" + result + "\n\n" + "*Made by:* " + "CLEANDX")
             } catch (e) {
                 try {
                     let input = await NBAI(text)
                     let filteredTexts = filterJSONInput(input);
                     let result = (JSON.parse(filteredTexts[1]).text);
-                    await m.reply("*Result:*" + result + "\n\n" + "*Made by:* " + "NBAI")
+                    await m.reply("*Result:*\n\n" + result + "\n\n" + "*Made by:* " + "NBAI")
                 } catch (e) {
                     try {
                         let result = await AIUSS(text)
-                        await m.reply("*Result:*" + result + "\n\n" + "*Made by:* " + "AIUSS")
+                        await m.reply("*Result:*\n\n" + result + "\n\n" + "*Made by:* " + "AIUSS")
                     } catch (e) {
                         try {
                             let result = await wxGpt(text)
-                            await m.reply("*Result:*" + result + "\n\n" + "*Made by:* " + "wxGpt")
+                            await m.reply("*Result:*\n\n" + result + "\n\n" + "*Made by:* " + "WXGPT")
                         } catch (e) {
                             try {
                                 let result = await gptBaby(text)
-                                await m.reply("*Result:*" + convertNewline(result.content) + "\n\n" + "*Made by:* " + "gptBaby")
+                                await m.reply("*Result:*\n\n" + convertNewline(result.content) + "\n\n" + "*Made by:* " + "GPTBABY")
                             } catch (e) {
                                 try {
                                     let result = await gptEso(text)
-                                    await m.reply("*Result:*" + result + "\n\n" + "*Made by:* " + "gptEso")
+                                    await m.reply("*Result:*\n\n" + result + "\n\n" + "*Made by:* " + "ESOJOURN")
                                 } catch (e) {
                                     try {
                                         let outs = await pizzaGpt(text)
                                         let result = JSON.parse(outs).answer.content
-                                        await m.reply("*Result:*" + result + "\n\n" + "*Made by:* " + "gptEso")
+                                        await m.reply("*Result:*\n\n" + result + "\n\n" + "*Made by:* " + "PIZZAGPT")
                                     } catch (e) {
                                         try {
                                             let input = await gptGo(text)
                                             let result = input.content
-                                            await m.reply("*Result:*" + convertNewline(result) + "\n\n" + "*Made by:* " + "gptGo")
+                                            await m.reply("*Result:*\n\n" + convertNewline(result) + "\n\n" + "*Made by:* " + "GPTGO")
                                         } catch (e) {
                                             try {
                                                 let result = await chatGptD4(text)
-                                                await m.reply(result)
+                                                await m.reply("*Result:*\n\n" + result + "\n\n" + "*Made by:* " + "GPTD4")
                                             } catch (e) {
                                                 await m.reply(eror)
                                             }

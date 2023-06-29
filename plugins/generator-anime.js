@@ -4,8 +4,14 @@ import axios from "axios";
 import uploadFile from '../lib/uploadFile.js'
 import uploadImage from '../lib/uploadImage.js'
 
-let handler = async (m, { conn, text, args, usedPrefix, command }) => {
-let q = m.quoted ? m.quoted : m
+let handler = async (m, {
+    conn,
+    text,
+    args,
+    usedPrefix,
+    command
+}) => {
+    let q = m.quoted ? m.quoted : m
     let mime = (q.msg || q).mimetype || q.mediaType || ""
     if (!/image/g.test(mime)) throw `Balas/Kirim Gambar Dengan Perintah ${usedPrefix + command}!`
     await m.reply(wait)
@@ -13,24 +19,34 @@ let q = m.quoted ? m.quoted : m
     let image = await uploadImage(data)
     let anime
     try {
-    anime = await ToAnime("zahwazein", image)
+        anime = await ToAnime("xzn", image)
     } catch (e) {
-    anime = await ToAnime("caliph", image)
+        try {
+            anime = await ToAnime("zahwazein", image)
+        } catch (e) {
+            try {
+                anime = await ToAnime("caliph", image)
+            } catch (e) {
+                await m.reply(eror)
+            }
+        }
     }
     await conn.sendFile(m.chat, anime, 'anime.jpg', "Sudah Jadi", m, false)
 }
 handler.help = ["toanime"].map(v => v + " (Balas foto)")
 handler.tags = ["tools"]
-handler.command = /^jadianime|toanime$/i
+handler.command = /^(to|jadi)anime$/i
 handler.limit = true
 export default handler
 
 function ToAnime(efek, img) {
     try {
-    if (efek == "zahwazein") {
-        return "https://api.zahwazein.xyz/photoeditor/jadianime?url=" + img + "&apikey=zenzkey_1ec92f71d3bb"
+        if (efek == "zahwazein") {
+            return "https://api.zahwazein.xyz/photoeditor/jadianime?url=" + img + "&apikey=zenzkey_1ec92f71d3bb"
         } else if (efek == "caliph") {
-        return "https://api.caliph.biz.id/api/animeai?img=" + img + "&apikey=caliphkey"
+            return "https://api.caliph.biz.id/api/animeai?img=" + img + "&apikey=caliphkey"
+        } else if (efek == "xzn") {
+            return "https://xzn.wtf/api/toanime?url=" + img + "&apikey=wudysoft"
         }
     } catch (e) {
         throw eror
@@ -38,7 +54,7 @@ function ToAnime(efek, img) {
 }
 
 async function Crop(img, x, y, lebar, tinggi) {
-  let po = await Jimp.read(img);
-  let tong = await po.crop(Number(x), Number(y), Number(lebar), Number(tinggi)).getBufferAsync(Jimp.MIME_JPEG)
-  return tong
+    let po = await Jimp.read(img);
+    let tong = await po.crop(Number(x), Number(y), Number(lebar), Number(tinggi)).getBufferAsync(Jimp.MIME_JPEG)
+    return tong
 }

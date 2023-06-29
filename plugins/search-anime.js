@@ -310,24 +310,6 @@ let dapet = json.result
 	return conn.sendListM(m.chat, button, row, m)
 }
 
-if (command == 'oploverz') {
-let res = await fetch('https://violetics.pw/api/anime/oploverz?apikey=beta&manga=' + text)
-let json = await res.json()
-if (json.isError == true) throw eror
-let dapet = json.result
-	let row = Object.values(dapet).map((v, index) => ({
-		title: index + ' ' + v.title,
-		description: '\nUrl: ' + v.url + '\nThumb: ' + v.thumbnail + '\nStatus: ' + v.status + '\nType: ' + v.type,
-		rowId: usedPrefix + 'ss ' + v.url
-	}))
-	let button = {
-		buttonText: `☂️ ${command} Search Disini ☂️`,
-		description: `⚡ Hai ${name}, Silakan pilih ${command} Search di tombol di bawah...\n*Teks yang anda kirim:* ${text}\n\nKetik ulang *${usedPrefix + command}* teks anda untuk mengubah teks lagi`,
-		footerText: wm
-	}
-	return conn.sendListM(m.chat, button, row, m)
-}
-
 if (command == 'samehadaku') {
 let res = await fetch('https://violetics.pw/api/anime/samehadaku?apikey=beta&manga=' + text)
 let json = await res.json()
@@ -450,8 +432,8 @@ genres: ${dapet.genres}`)
 }
 
 }
-handler.help = ['anibatch', 'animeindo', 'drivenime', 'anikyoji', 'animeplanet', 'anisearch', 'anoboy', 'fanfox', 'gogoanime', 'kiryu', 'kissmanga', 'klikmanga', 'komiku', 'mangadex', 'manganato', 'myanimelist', 'nimegami', 'oploverz', 'samehadaku', 'amino', 'googleit', 'groupwhatsapp', 'layarkaca', 'mangatoon', 'musicfinder']
-handler.command = ['anibatch', 'animeindo', 'drivenime', 'anikyojin', 'animeplanet', 'anisearch', 'anoboy', 'fanfox', 'gogoanime', 'kiryu', 'kissmanga', 'klikmanga', 'komiku', 'mangadex', 'manganato', 'myanimelist', 'nimegami', 'oploverz', 'samehadaku', 'amino', 'googleit', 'groupwhatsapp', 'layarkaca', 'mangatoon', 'musicfinder']
+handler.help = ['anibatch', 'animeindo', 'drivenime', 'anikyoji', 'animeplanet', 'anisearch', 'anoboy', 'fanfox', 'gogoanime', 'kiryu', 'kissmanga', 'klikmanga', 'komiku', 'mangadex', 'manganato', 'myanimelist', 'nimegami', 'samehadaku', 'amino', 'googleit', 'groupwhatsapp', 'layarkaca', 'mangatoon', 'musicfinder']
+handler.command = ['anibatch', 'animeindo', 'drivenime', 'anikyojin', 'animeplanet', 'anisearch', 'anoboy', 'fanfox', 'gogoanime', 'kiryu', 'kissmanga', 'klikmanga', 'komiku', 'mangadex', 'manganato', 'myanimelist', 'nimegami', 'samehadaku', 'amino', 'googleit', 'groupwhatsapp', 'layarkaca', 'mangatoon', 'musicfinder']
 handler.tags = ['internet']
 
 export default handler

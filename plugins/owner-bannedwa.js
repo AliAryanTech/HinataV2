@@ -1,11 +1,11 @@
-import axios from "axios";
-import cheerio from "cheerio";
-import PhoneNumber from "awesome-phonenumber";
+import axios from 'axios'
+import cheerio from 'cheerio'
+import PhoneNumber from 'awesome-phonenumber'
 
 /** @note @see @line 42 */
 let handler = async (m, { conn, text }) => {
 	if (!text) {
-		return m.reply("Nomornya Mana?");
+		return m.reply("Masukkan Nomor!");
 	}
 	// replace no numeric
 	text = text.replace(/[^0-9]/g, "");
@@ -77,22 +77,29 @@ let handler = async (m, { conn, text }) => {
 
 		if (payload.includes(`"payload":true`)) {
 			m.reply(
-				`FROM WhatsApp Support
+				`WhatsApp Support
 Hai,
 Terima kasih atas pesan Anda.
-Kami telah menonaktifkan akun WhatsApp Anda.`.trim()
+Kami telah mengaktifkan kembali akun anda.`.trim()
 			);
 		} else if (payload.includes(`"payload":false`)) {
 			m.reply(
-				`Terima kasih telah menghubungi kami.
-Kami akan menghubungi Anda kembali melalui email, dan itu mungkin memerlukan waktu hingga tiga hari kerja.`.trim()
+				`Halo, 
+Kami menerima pesan Anda.
+Kami tahu bahwa saat ini Anda tidak memiliki akses ke WhatsApp dan kami sedang bekerja
+untuk memenuhi pesanan Anda.
+Kami berterima kasih atas kesabaran Anda dan akan menghubungi Anda sesegera mungkin.
+Untuk informasi lebih lanjut, silakan baca peraturan kami.`.trim()
 			);
 		} else m.reply(await import("utils").format(res.data));
 	} catch (err) {
 		m.reply(`${err}`);
 	}
 };
-handler.command = ["bannedwa"]; // you decide
-//handler.tags = [""]; // you decide
-handler.owner = true;
-export default handler;
+
+handler.help = ['unbannedwa']
+handler.tags = ['owner']
+handler.command = /^(unbannedwa|unbanwa)$/i
+handler.owner = true
+
+export default handler

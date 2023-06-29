@@ -1,37 +1,47 @@
-import fetch from 'node-fetch'
+import {
+    aksaraToLatin,
+    latinToAksara
+} from "@bochilteam/scraper"
 
-let handler = async (m, { conn, args, usedPrefix, command }) => {
-    let er = `Opsi tersedia:
-• latinkejawa
-• latinkesunda
-• jawakelatin
-• sundakelatin
-
-Contoh penggunaan:
-${usedPrefix + command} latinkejawa selamat pagi
-    `.trim()
-    if (!args[0]) throw er
-
-    switch (args[0].toLowerCase()) {
-        case 'latinkejawa':
-        case 'latinkesunda':
-        case 'jawakelatin':
-        case 'sundakelatin':
-            let text = args.slice(1).join(' ')
-            let res = await fetch(global.API('xteam', '/aksara/' + args[0].toLowerCase(), { text }, 'APIKEY'))
-            if (res.status !== 200) throw await res.text()
-            let json = await res.json()
-            if (!json.status) throw json
-            m.reply(json.message)
-            break
-        default:
-            throw er
-    }
+let handler = async (m, {
+    conn,
+    args,
+    usedPrefix,
+    command
+}) => {
+let text
+if (args.length >= 1) {
+  text = args.slice(0).join(" ")
+} else if (m.quoted && m.quoted.text) {
+  text = m.quoted.text
+} else {
+  throw "Input teks atau reply teks yang ingin dijadikan aksara atau latin!"
 }
-handler.help = ['aksara'].map(v => v + ' <opsi> <teks>')
-handler.tags = ['tools']
-handler.command = /^aksara$/i
 
-handler.limit = true
+try {
+  await m.reply(wait)
+  const outputText = await convertText(text)
+  await m.reply(outputText)
+} catch (error) {
+  console.error("Error occurred during conversion:", error)
+  await m.reply("Terjadi kesalahan saat melakukan konversi!")
+}
 
+}
+handler.help = ["aksara"]
+handler.tags = ["tools"]
+handler.command = /^(aksara)$/i
 export default handler
+
+async function convertText(inputText) {
+  try {
+    if (/^[a-zA-Z0-9\s]+$/.test(inputText)) {
+      return await latinToAksara(inputText)
+    } else {
+      return await aksaraToLatin(inputText)
+    }
+  } catch (error) {
+    console.error("Error occurred during conversion:", error)
+    return ""
+  }
+}
