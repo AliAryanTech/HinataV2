@@ -12,6 +12,6 @@ conn.sendFile(m.chat, stiker, 'sticker.webp', '', m, { asSticker: true })
 } catch (e) {
 m.reply('*[❗𝐈𝐍𝐅𝐎❗] respond to a image to make it circle sticker*')
 }}
-handler.command = /^scircle|circle$/i
+handler.command = /^scircle$/i
 export default handler
 /* `https://api.dhamzxploit.my.id/api/canvas/circle?url=${url}` */

@@ -1,6 +1,5 @@
 /* Recode By Wudysoft */
 import Canvas from "canvas"
-import canvacord from "canvacord"
 import sharp from "sharp"
 import axios from "axios"
 
@@ -92,9 +91,6 @@ await conn.sendButton(m.chat, "Result", wm, await sponge(one), [["Tester", "ok"]
 if (command == "canvasttp") {
 await conn.sendButton(m.chat, "Result", wm, await ttp(one, two, three), [["Tester", "ok"]], m)
 }
-if (command == "canvaswelcome") {
-await conn.sendButton(m.chat, "Result", wm, await welcome(one, two, three, four), [["Tester", "ok"]], m)
-}
 if (command == "canvaswolverine") {
 await conn.sendButton(m.chat, "Result", wm, await wolverine(one), [["Tester", "ok"]], m)
 }
@@ -125,7 +121,6 @@ handler.command = handler.help = ["canvasman1",
 "canvastv",
 "canvassponge",
 "canvasttp",
-"canvaswelcome",
 "canvaswolverine"]
 export default handler
 
@@ -248,24 +243,6 @@ async function ttp(size, color, txt) {
 	ctx.fillStyle = color.slice(1)
 	ctx.fillText(txt.toUpperCase().replace(/(.{1,20})/g, "$1\n"), starttxt, starttxt)
 	return ttp.toBuffer()
-}
-
-async function welcome(name, disc, member, avatar) {
-	const welcomeCard = new canvacord.Welcomer()
-  .setUsername(name)
-  .setDiscriminator(disc)
- .setAvatar(avatar)
- .setColor("title", "#68048a")
- .setColor("username-box", "#68048a")
-.setColor("discriminator-box", "#68048a")
-.setColor("message-box", "#68048a")
-.setColor("border", "#34068a")
-.setColor("avatar", "#55edd1")
-.setBackgroundImage("https://media.istockphoto.com/photos/abstract-background-wallpaper-picture-id952039286?b=1&k=20&m=952039286&s=170667a&w=0&h=LmOcMt7FHxFUAr2bOSfTUPV9sQhME6ABtAYLM0cMkR4=")
-.setMemberCount(member)
-let attachment = await welcomeCard.build()
-	let img = await attachment.toAttachment().then(d => d.toBuffer())
-	return img
 }
 
 // Por Pedro B. - Daqui até...

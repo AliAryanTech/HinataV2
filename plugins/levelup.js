@@ -1,12 +1,11 @@
 import {
     canLevelUp,
     xpRange
-} from '../lib/levelling.js'
+} from "../lib/levelling.js"
 import {
     levelup
-} from '../lib/canvas.js'
-import canvacord from 'canvacord'
-import knights from 'knights-canvas';
+} from "../lib/canvas.js"
+import knights from "knights-canvas"
 
 let handler = async (m, {
     conn,
@@ -40,7 +39,7 @@ Kurang *${max - user.exp}* lagi! ✨
 
 • 🧬Level Sebelumnya : ${before}
 • 🧬Level Baru : ${user.level}
-• Pada Jam : ${new Date().toLocaleString('id-ID')}
+• Pada Jam : ${new Date().toLocaleString("id-ID")}
 
 *Note:* _Semakin sering berinteraksi dengan bot Semakin Tinggi level kamu_
 `.trim()
@@ -50,11 +49,11 @@ Kurang *${max - user.exp}* lagi! ✨
             xp,
             max
         } = xpRange(user.level, global.multiplier)
-        let pp = await conn.profilePictureUrl(m.sender).catch(_ => './src/avatar_contact.png')
+        let pp = await conn.profilePictureUrl(m.sender).catch(_ => "./src/avatar_contact.png")
         let image = await new knights.Up()
             .setAvatar(pp)
-            .toAttachment();
-        let dataa = image.toBuffer();
+            .toAttachment()
+        let dataa = image.toBuffer()
 
         let exp = user.exp
         let required = xp
@@ -63,30 +62,16 @@ Kurang *${max - user.exp}* lagi! ✨
         let disec = m.sender.substring(3, 7)
         let ppuser
         try {
-            ppuser = await conn.profilePictureUrl(m.sender, 'image')
+            ppuser = await conn.profilePictureUrl(m.sender, "image")
         } catch {
-            ppuser = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMxMUXFtd5GrFkxyrU-f5zA2IH8MZ-U-cFKg&usqp=CAU'
+            ppuser = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMxMUXFtd5GrFkxyrU-f5zA2IH8MZ-U-cFKg&usqp=CAU"
         }
-
-        const rank = new canvacord.Rank()
-            .setAvatar(ppuser)
-            .setLevel(level)
-            .setLevelColor('#39FF14', '#39FF14')
-            .setCurrentXP(exp)
-            .setOverlay('#000000', 100, true)
-            .setRequiredXP(required)
-            .setProgressBar('#39FF14', 'COLOR')
-            .setRank(0, role, true)
-            .setBackground('COLOR', '#000000')
-            .setUsername(m.name)
-            .setDiscriminator(disec)
-        let datab = await rank.build()
-
+        
         let datac = await levelup(teks, user.level)
 
         try {
             await conn.sendMessage(m.chat, {
-                image: [dataa, datab, datac].getRandom(),
+                image: [dataa, datac].getRandom(),
                 caption: str
             }, {
                 quoted: m
@@ -97,10 +82,7 @@ Kurang *${max - user.exp}* lagi! ✨
 
     }
 }
-
-handler.help = ['levelup']
-handler.tags = ['xp']
-
+handler.help = ["levelup"]
+handler.tags = ["xp"]
 handler.command = /^level(|up)$/i
-
 export default handler

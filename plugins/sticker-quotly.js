@@ -17,7 +17,7 @@ let handler = async (m, {
         text = args.slice(0).join(" ")
     } else if (m.quoted && m.quoted.text) {
         text = m.quoted.text
-    } else throw "Input Teks"
+    } else throw "Input teks atau reply teks yang ingin di jadikan quote!"
 
     await m.reply(wait)
     let pp = await conn.profilePictureUrl(m.sender, "image").catch(_ => logo)
@@ -27,6 +27,9 @@ let handler = async (m, {
     }
     if (command == "quotlyv2") {
         temas = "gelap"
+    }
+    if (command == "quotlyv3") {
+        temas = "random"
     }
     let result = await Quotly(name, pp, text, temas)
     try {
@@ -42,9 +45,9 @@ let handler = async (m, {
     }
 }
 
-handler.help = ["quotly", "quotlyv2"]
+handler.help = ["quotly", "quotlyv2", "quotlyv3"]
 handler.tags = ["sticker"]
-handler.command = ["quotly", "quotlyv2"]
+handler.command = ["quotly", "quotlyv2", "quotlyv3"]
 
 export default handler
 
@@ -55,6 +58,30 @@ async function Quotly(a, b, c, d) {
             "type": "quote",
             "format": "png",
             "backgroundColor": "#FFFFFF",
+            "width": 512,
+            "height": 768,
+            "scale": 2,
+            "messages": [{
+                "entities": [],
+                "avatar": true,
+                "from": {
+                    "id": 1,
+                    "name": a,
+                    "photo": {
+                        "url": b
+                    }
+                },
+                "text": c,
+                "replyMessage": {}
+            }]
+        }
+    }
+    
+    if (d == "random") {
+        obj = {
+            "type": "quote",
+            "format": "png",
+            "backgroundColor": getRandomHexColor().toString(),
             "width": 512,
             "height": 768,
             "scale": 2,
@@ -114,4 +141,8 @@ try {
     let results = json.data.result.image
     const buffer = Buffer.from(results, "base64")
     return buffer
+}
+
+function getRandomHexColor() {
+  return "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0");
 }

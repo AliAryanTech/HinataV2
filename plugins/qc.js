@@ -13,14 +13,14 @@ let text
     } else if (m.quoted && m.quoted.text) {
         text = m.quoted.text
     } else throw "Input teks atau reply teks yang ingin di jadikan quote!"
-   if (!text) return m.reply('masukan text')
+   await m.reply(wait)
    if (text.length > 30) return m.reply('Maksimal 30 Teks!')
     let pp = await conn.profilePictureUrl(m.sender, 'image').catch(_ => 'https://telegra.ph/file/a2ae6cbfa40f6eeea0cf1.jpg')
 
    const obj = {
       "type": "quote",
       "format": "png",
-      "backgroundColor": "#000000",
+      "backgroundColor": getRandomHexColor().toString(),
       "width": 512,
       "height": 768,
       "scale": 2,
@@ -51,5 +51,8 @@ let text
 handler.help = ['qc']
 handler.tags = ['sticker']
 handler.command = /^(qc)$/i
-
 export default handler
+
+function getRandomHexColor() {
+  return "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0");
+}

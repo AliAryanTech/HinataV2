@@ -180,32 +180,55 @@ let handler = async (m, {
                 frequency_penalty: 0.0,
                 presence_penalty: 0.0
             });
-            m.reply('*Result:*' + response.data.choices[0].text + '\n\n' + '*Made by:* ' + 'OpenAi')
+            await m.reply("*Result:*" + response.data.choices[0].text + "\n\n" + "*Made by:* " + "OpenAi")
         } catch (e) {
             try {
-                let ainya = await ChatGpt(text)
-                if (!ainya) throw eror
-                m.reply('*Result:*\n' + ainya + '\n\n' + '*Made by:* pawan.krd')
+                let result = await CleanDx(text)
+                await m.reply("*Result:*" + result + "\n\n" + "*Made by:* " + "CleanDx")
             } catch (e) {
                 try {
-                    let ainyat = await ChatGptTurbo(text)
-                if (!ainyat) throw eror
-                m.reply('*Result:*\n' + ainyat + '\n\n' + '*Made by:* pawan.krd')
+                    let input = await NBAI(text)
+                    let filteredTexts = filterJSONInput(input);
+                    let result = (JSON.parse(filteredTexts[1]).text);
+                    await m.reply("*Result:*" + result + "\n\n" + "*Made by:* " + "NBAI")
                 } catch (e) {
-                try {
-                    let ai = await (await fetch(global.API('lolhuman', '/api/openai', {
-                        text: text
-                    }, 'apikey'))).json()
-                    if (!ai) throw eror
-                    m.reply('*Result:*\n' + ai.result + '\n\n' + '*Made by:* ' + global.API('lolhuman'))
-                    } catch (e) {
                     try {
-                    let res = await (await fetch('https://mfarels.my.id/api/openai?text=' + text)).json()
-                    if (!res) throw eror
-                    m.reply('*Result:*\n' + res.result + '\n\n' + '*Made by:* mfarels.my.id')
+                        let result = await AIUSS(text)
+                        await m.reply("*Result:*" + result + "\n\n" + "*Made by:* " + "AIUSS")
                     } catch (e) {
-                    throw eror
-                    }
+                        try {
+                            let result = await wxGpt(text)
+                            await m.reply("*Result:*" + result + "\n\n" + "*Made by:* " + "wxGpt")
+                        } catch (e) {
+                            try {
+                                let result = await gptBaby(text)
+                                await m.reply("*Result:*" + convertNewline(result.content) + "\n\n" + "*Made by:* " + "gptBaby")
+                            } catch (e) {
+                                try {
+                                    let result = await gptEso(text)
+                                    await m.reply("*Result:*" + result + "\n\n" + "*Made by:* " + "gptEso")
+                                } catch (e) {
+                                    try {
+                                        let outs = await pizzaGpt(text)
+                                        let result = JSON.parse(outs).answer.content
+                                        await m.reply("*Result:*" + result + "\n\n" + "*Made by:* " + "gptEso")
+                                    } catch (e) {
+                                        try {
+                                            let input = await gptGo(text)
+                                            let result = input.content
+                                            await m.reply("*Result:*" + convertNewline(result) + "\n\n" + "*Made by:* " + "gptGo")
+                                        } catch (e) {
+                                            try {
+                                                let result = await chatGptD4(text)
+                                                await m.reply(result)
+                                            } catch (e) {
+                                                await m.reply(eror)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -244,23 +267,23 @@ let handler = async (m, {
             } catch (e) {
                 try {
                     let ainyat = await ChatGptTurbo(text)
-                if (!ainyat) throw eror
-                m.reply('*Result:*\n' + ainyat + '\n\n' + '*Made by:* pawan.krd')
+                    if (!ainyat) throw eror
+                    m.reply('*Result:*\n' + ainyat + '\n\n' + '*Made by:* pawan.krd')
                 } catch (e) {
-                try {
-                    let ai = await (await fetch(global.API('lolhuman', '/api/openai', {
-                        text: text
-                    }, 'apikey'))).json()
-                    if (!ai) throw eror
-                    m.reply('*Result:*\n' + ai.result + '\n\n' + '*Made by:* ' + global.API('lolhuman'))
-                    } catch (e) {
                     try {
-                    let res = await (await fetch('https://mfarels.my.id/api/openai?text=' + text)).json()
-                    if (!res) throw eror
-                    m.reply('*Result:*\n' + res.result + '\n\n' + '*Made by:* mfarels.my.id')
+                        let ai = await (await fetch(global.API('lolhuman', '/api/openai', {
+                            text: text
+                        }, 'apikey'))).json()
+                        if (!ai) throw eror
+                        m.reply('*Result:*\n' + ai.result + '\n\n' + '*Made by:* ' + global.API('lolhuman'))
                     } catch (e) {
-                    throw eror
-                    }
+                        try {
+                            let res = await (await fetch('https://mfarels.my.id/api/openai?text=' + text)).json()
+                            if (!res) throw eror
+                            m.reply('*Result:*\n' + res.result + '\n\n' + '*Made by:* mfarels.my.id')
+                        } catch (e) {
+                            throw eror
+                        }
                     }
                 }
             }
@@ -331,46 +354,390 @@ function clean(string) {
 const pkey = "pk-kyptPcoSLLtQyiqFBvRtpyVBKLiPzYiBOYceqwEgVrMKCPHc"
 
 async function ChatGpt(prompt) {
-const configuration = new Configuration({
-	apiKey: pkey,
-	basePath: "https://api.pawan.krd/v1",
-});
+    const configuration = new Configuration({
+        apiKey: pkey,
+        basePath: "https://api.pawan.krd/v1",
+    });
 
-const openai = new OpenAIApi(configuration);
-const response = await openai.createCompletion({
-	model: "text-davinci-003",
-	prompt: prompt,
-	temperature: 0.7,
-	max_tokens: 256,
-	top_p: 1,
-	frequency_penalty: 0,
-	presence_penalty: 0
-});
+    const openai = new OpenAIApi(configuration);
+    const response = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: prompt,
+        temperature: 0.7,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0
+    });
 
-return response.data.choices[0].text;
+    return response.data.choices[0].text;
 }
 
 async function ChatGptTurbo(prompt) {
-let response = await(await fetch("https://api.pawan.krd/v1/chat/completions", {
-  method: "POST",
-  headers: {
-    "Authorization": "Bearer " + pkey,
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    "model": "gpt-3.5-turbo",
-    "max_tokens": 100,
-    "messages": [
-      {
-        "role": "system",
-        "content": "You are an helpful assistant."
-      },
-      {
+    let response = await (await fetch("https://api.pawan.krd/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer " + pkey,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "model": "gpt-3.5-turbo",
+            "max_tokens": 100,
+            "messages": [{
+                    "role": "system",
+                    "content": "You are an helpful assistant."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        })
+    })).json()
+    return response.choices[0].message.content
+}
+
+async function NBAI(query) {
+    const url = "https://154.40.59.105:3006/api/chat-process";
+    const headers = {
+        "Content-Type": "application/json",
+        "Referer": "https://f1.nbai.live/",
+        "accept": "application/json, text/plain, */*",
+    };
+
+    const body = JSON.stringify({
+        prompt: query,
+        options: {}
+    });
+
+    const response = await fetch(url, {
+        method: "POST",
+        headers: headers,
+        body: body
+    });
+
+    return await response.text();
+}
+
+function filterJSONInput(input) {
+    const regex = /{(?:[^{}]|(?:\{(?:[^{}]|(?:\{(?:[^{}]|(?:\{[^{}]*\}))*\}))*\}))*}/g;
+    const matches = input.match(regex);
+
+    const filteredTexts = matches.filter(text => {
+        try {
+            JSON.parse(text);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    });
+
+    return filteredTexts;
+}
+async function CleanDx(your_qus) {
+    let linkaiList = [];
+    let linkaiId = generateRandomString(21);
+    let Baseurl = "https://vipcleandx.xyz/";
+
+    console.log(formatTime());
+    linkaiList.push({
+        "content": your_qus,
         "role": "user",
-        "content": prompt
-      }
-    ]
-  })
-})).json()
-return response.choices[0].message.content
+        "nickname": "",
+        "time": formatTime(),
+        "isMe": true
+    });
+    linkaiList.push({
+        "content": "正在思考中...",
+        "role": "assistant",
+        "nickname": "AI",
+        "time": formatTime(),
+        "isMe": false
+    });
+    if (linkaiList.length > 10) {
+        linkaiList = linkaiList.shift();
+    }
+
+    let response = await fetch(Baseurl + "v1/chat/gpt/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Forwarded-For": generateRandomIP(),
+            "Referer": Baseurl,
+            "accept": "application/json, text/plain, */*"
+        },
+        body: JSON.stringify({
+            "list": linkaiList,
+            "id": linkaiId,
+            "title": your_qus,
+            "prompt": "",
+            "temperature": 0.5,
+            "models": "0",
+            "continuous": true
+        })
+    })
+    const data = await response.text();
+
+    return data;
+}
+
+function generateRandomString(length) {
+    const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let randomString = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        randomString += characters.charAt(randomIndex);
+    }
+    return randomString;
+}
+
+function generateRandomIP() {
+    const ipParts = [];
+    for (let i = 0; i < 4; i++) {
+        const randomPart = Math.floor(Math.random() * 256);
+        ipParts.push(randomPart);
+    }
+    return ipParts.join('.');
+}
+
+function formatTime() {
+    const currentDate = new Date();
+    const hours = currentDate.getHours().toString().padStart(2, '0');
+    const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+    const seconds = currentDate.getSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+}
+
+async function wxGpt(you_qus) {
+    let baseURL = "https://free-api.cveoy.top/";
+    try {
+        const response = await fetch(baseURL + "v3/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "origin": "https://ai1.chagpt.fun",
+                "Referer": baseURL
+            },
+            body: JSON.stringify({
+                prompt: you_qus
+            })
+        });
+
+        const data = await response.text();
+        // Handle the response data here
+        return (data);
+
+        return data; // Return the response data if needed
+    } catch (error) {
+        // Handle any errors here
+        console.error(error);
+    }
+}
+
+function convertNewline(output) {
+    const convertedOutput = output.replace(/\\n/g, '\n');
+    return convertedOutput;
+}
+
+/* New Line */
+async function gptBaby(your_qus) {
+    const baseURL = "https://fasdsgdfsg97986agagyk656.lovebaby.today/";
+    const messageChain8 = [{
+        role: "user",
+        content: your_qus
+    }];
+
+    try {
+        const response = await fetch(baseURL + "api/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "accept": "text/event-stream",
+                "origin": "https://fasdsgdfsg97986agagyk656.lovebaby.today/",
+                "Referer": baseURL
+            },
+            body: JSON.stringify({
+                messages: messageChain8,
+                stream: true,
+                model: "gpt-3.5-turbo",
+                temperature: 0.5,
+                presence_penalty: 0
+            })
+        });
+
+        // Handle the response data here
+        const inputText = await response.text();
+        const arrays = inputText.split('\n');
+        const result = arrays.reduce((acc, item) => {
+            const match = item.match(/"content":"([^"]+)"/);
+            if (match) {
+                const content = match[1];
+                acc.push(content);
+            }
+            return acc;
+        }, []);
+
+        const mergedContent = {
+            content: result.join('')
+        };
+        return mergedContent;
+    } catch (error) {
+        // Handle any errors here
+        console.error(error);
+    }
+}
+
+async function gptEso(you_qus) {
+    try {
+        let baseURL = "https://gpt.esojourn.org/";
+        const messageChain4 = [{
+            role: "user",
+            content: you_qus
+        }];
+
+        const response = await fetch(baseURL + "api/chat-stream", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "access-code": "586-484-535D",
+                "path": "v1/chat/completions",
+                "Referer": baseURL
+            },
+            body: JSON.stringify({
+                messages: messageChain4,
+                stream: true,
+                model: "gpt-3.5-turbo",
+                temperature: 1,
+                max_tokens: 2000,
+                presence_penalty: 0
+            })
+        });
+
+        const data = await response.text();
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+async function pizzaKey() {
+    const sourceResponse = await fetch("https://www.pizzagpt.it/", {
+        method: "GET",
+        headers: {
+            "Referer": "www.pizzagpt.it"
+        }
+    });
+    const sourceText = await sourceResponse.text();
+    const reqJS = sourceText.match("index.*?\.js")[0];
+
+    const response = await fetch("https://www.pizzagpt.it/_nuxt/" + reqJS.trim(), {
+        method: "GET",
+        headers: {
+            "Referer": "www.pizzagpt.it"
+        }
+    });
+    const respText = await response.text();
+    const pizzaSecret = respText.match("x=\"(.*?)\"")[1];
+
+    return pizzaSecret;
+}
+
+async function pizzaGpt(query) {
+    const url = "https://www.pizzagpt.it/api/chat-completion";
+    const headers = {
+        "Content-Type": "text/plain;charset=UTF-8",
+        "Referer": "https://www.pizzagpt.it/"
+    };
+    const data = JSON.stringify({
+        question: query,
+        secret: await pizzaKey()
+    });
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: headers,
+            body: data,
+        });
+
+        const responseText = await response.text();
+        return responseText;
+    } catch (error) {
+        // Handle errors here
+        console.error(error);
+        return null;
+    }
+}
+async function gptGo(query) {
+    const tokenResponse = await fetch(`https://gptgo.ai/action_get_token.php?q=${encodeURIComponent(query)}&hlgpt=default`, {
+        method: "GET",
+        headers: {
+            "Referer": "https://gptgo.ai/?hl=zh",
+            "origin": "https://gptgo.ai/",
+        }
+    });
+    const tokenData = await tokenResponse.json();
+    const gpttoken = tokenData.token;
+
+    const response = await fetch(`https://gptgo.ai/action_ai_gpt.php?token=${gpttoken}`, {
+        method: "GET",
+        headers: {
+            "Referer": "https://gptgo.ai/?hl=zh",
+            "origin": "https://gptgo.ai/",
+            "accept": "text/event-stream"
+        }
+    });
+
+    const inputText = await response.text();
+    const arrays = inputText.split('\n');
+    const result = arrays.reduce((acc, item) => {
+        const match = item.match(/"content":"([^"]+)"/);
+        if (match) {
+            const content = match[1];
+            acc.push(content);
+        }
+        return acc;
+    }, []);
+
+    const mergedContent = {
+        content: result.join('')
+    };
+    return mergedContent;
+}
+async function chatGptD4(prompt) {
+    let messageChain7 = []
+    let baseURL = "https://chatgptdddd.com/";
+    const data = JSON.stringify({
+        messages: messageChain7,
+        model: {
+            id: "gpt-3.5-turbo",
+            name: "GPT-3.5",
+            maxLength: 12000,
+            tokenLimit: 4000
+        },
+        temperature: 1,
+        prompt: prompt,
+        key: null
+    });
+
+    const headers = {
+        "Content-Type": "application/json",
+        "Referer": baseURL
+    };
+
+    try {
+        const response = await fetch(baseURL + "api/chat", {
+            method: "POST",
+            headers: headers,
+            body: data,
+            responseType: "stream"
+        });
+
+        const result = await response.text();
+        return result;
+    } catch (error) {
+        // Handle errors here
+        console.error(error);
+        return null;
+    }
 }

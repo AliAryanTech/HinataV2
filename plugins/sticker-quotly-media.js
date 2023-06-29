@@ -40,6 +40,9 @@ let handler = async (m, {
     if (command == "quotlyimgv2") {
         temas = "gelap"
     }
+    if (command == "quotlyimgv3") {
+        temas = "random"
+    }
     if (/webp/g.test(mime)) {
         urls = await QuotlyImg(await webp2png(img), name, pp, text, temas)
         out = await createSticker(false, urls, packname, name, 60)
@@ -66,9 +69,9 @@ let handler = async (m, {
     }
 
 }
-handler.help = ["quotlyimg", "quotlyimgv2"]
+handler.help = ["quotlyimg", "quotlyimgv2", "quotlyimgv3"]
 handler.tags = ['sticker']
-handler.command = ["quotlyimg", "quotlyimgv2"]
+handler.command = ["quotlyimg", "quotlyimgv2", "quotlyimgv3"]
 
 export default handler
 
@@ -79,6 +82,32 @@ async function QuotlyImg(a, b, c, d, tema) {
             "type": "quote",
             "format": "png",
             "backgroundColor": "#1b1429",
+            "width": 512,
+            "height": 768,
+            "scale": 2,
+            "messages": [{
+                "entities": [],
+                "media": {
+                    "url": a
+                },
+                "avatar": true,
+                "from": {
+                    "id": 1,
+                    "name": b,
+                    "photo": {
+                        "url": c
+                    }
+                },
+                "text": d,
+                "replyMessage": {}
+            }]
+        }
+    }
+    if (tema == "random") {
+        obj = {
+            "type": "quote",
+            "format": "png",
+            "backgroundColor": getRandomHexColor().toString(),
             "width": 512,
             "height": 768,
             "scale": 2,
@@ -167,4 +196,8 @@ async function createStickerV(img, url, packName, authorName, quality) {
         quality
     }
     return (new Sticker(img ? img : url, stickerMetadata)).toBuffer()
+}
+
+function getRandomHexColor() {
+  return "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0");
 }
