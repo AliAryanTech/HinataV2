@@ -1498,11 +1498,11 @@ ${nmsr} RPG tidak aktif, Silahkan hubungi Team Bot Discussion Untuk mengaktifkan
         restrict: `*${htki} ᴘᴇʀʜᴀᴛɪᴀɴ ${htka}*\n
 ${nmsr} Fitur ini di *disable* !`
     } [type]
-    if (msg) return this.sendButton(m.chat, msg, author, null, [
+    if (msg) return conn.sendButton(m.chat, msg, author, null, [
         ["🔖 Ok", "Huuu"],
         ["ℹ️ Menu", ".menu"]
     ], m, {
-        mentions: this.parseMention(msg)
+        mentions: conn.parseMention(msg)
     })
 }
 
