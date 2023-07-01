@@ -1,5 +1,5 @@
-import cheerio from 'cheerio';
 import fetch from 'node-fetch';
+import querystring from 'querystring';
 
 let handler = async (m, {
     conn,
@@ -11,9 +11,8 @@ let handler = async (m, {
 if (!text) return m.reply("Input query\nExample: .gpteso hello")
 await m.reply(wait)
 try {
-// Contoh penggunaan
-let result = await gptEso(text)
-await m.reply(result)
+    const imageUrl = await getImageUrl(text);
+    await conn.sendFile(m.chat, imageUrl, "Wallpaper Default", "Ini adalah anime ai world.", m);
 } catch (e) {
 await m.reply(eror)
 }
@@ -24,33 +23,28 @@ handler.command = /^(gpteso)$/i
 export default handler
 
 /* New Line */
-async function gptEso(you_qus) {
+async function getImageUrl(searchQuery) {
+  const baseUrl = 'https://api.wer.plus/api/aiw';
+  const queryParams = {
+    pra: searchQuery.replace(/\s/g, '%20')
+  };
+  const url = `${baseUrl}?${querystring.stringify(queryParams)}`;
+
   try {
-    let baseURL = "https://gpt.esojourn.org/";
-    const messageChain4 = [{ role: "user", content: you_qus }];
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Failed to fetch image URL.');
+    }
 
-    const response = await fetch(baseURL + "api/chat-stream", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "access-code": "586-484-535D",
-        "path": "v1/chat/completions",
-        "Referer": baseURL
-      },
-      body: JSON.stringify({
-        messages: messageChain4,
-        stream: true,
-        model: "gpt-3.5-turbo",
-        temperature: 1,
-        max_tokens: 2000,
-        presence_penalty: 0
-      })
-    });
+    const json = await response.json();
+    const imageUrl = json.url;
 
-      const data = await response.text();
-      return data;
+    if (!imageUrl) {
+      throw new Error('No image URL found.');
+    }
+
+    return imageUrl;
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }
