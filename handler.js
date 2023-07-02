@@ -1181,23 +1181,30 @@ export async function handler(chatUpdate) {
                 m.isCommand = true
                 let xp = "exp" in plugin ? parseInt(plugin.exp) : 17 // XP Earning per command
                 if (xp > 200)
-                    this.sendButton(m.chat, `[❗] *Sepertinya Anda Bermain Curang, Menggunakan Calculator*`, author, null, [
-                        ["Buy Limit", "/buy limit"],
-                        ["Cheat Limit", "/ngechit"]
-                    ], m)
+                    this.sendMessage(m.chat, {
+                text: `[❗] *Sepertinya Anda Bermain Curang, Menggunakan Calculator*`,
+                mentions: [m.sender]
+            }, {
+                quoted: m
+            })
                 else
                     m.exp += xp
                 if (!isPrems && plugin.limit && global.db.data.users[m.sender].limit < plugin.limit * 1) {
-                    this.sendButton(m.chat, `[❗] *Limit Anda Habis, Beberapa Command Tidak Bisa Di Akses*`, author, null, [
-                        ["Buy Limit", "/buy limit"],
-                        ["Cheat Limit", "/ngechit"]
-                    ], m)
+                    this.sendMessage(m.chat, {
+                text: `[❗] *Limit Anda Habis, Beberapa Command Tidak Bisa Di Akses*`,
+                mentions: [m.sender]
+            }, {
+                quoted: m
+            })
                     continue // Limit habis
                 }
                 if (plugin.level > _user.level) {
-                    this.sendButton(m.chat, `[💬] Diperlukan level *${plugin.level}* untuk menggunakan perintah ini. Level kamu *${_user.level}🎋*\n*${plugin.level}* level is required to use this command. Your level is *${_user.level}🎋*`, author, null, [
-                        ["Ok", "ok"]
-                    ], m)
+                    this.sendMessage(m.chat, {
+                text: `[💬] Diperlukan level *${plugin.level}* untuk menggunakan perintah ini. Level kamu *${_user.level}🎋*\n*${plugin.level}* level is required to use this command. Your level is *${_user.level}🎋*`,
+                mentions: [m.sender]
+            }, {
+                quoted: m
+            })
                     continue // If the level has not been reached
                 }
                 let extra = {
@@ -1498,12 +1505,13 @@ ${nmsr} RPG tidak aktif, Silahkan hubungi Team Bot Discussion Untuk mengaktifkan
         restrict: `*${htki} ᴘᴇʀʜᴀᴛɪᴀɴ ${htka}*\n
 ${nmsr} Fitur ini di *disable* !`
     } [type]
-    if (msg) return conn.sendButton(m.chat, msg, author, null, [
-        ["🔖 Ok", "Huuu"],
-        ["ℹ️ Menu", ".menu"]
-    ], m, {
-        mentions: conn.parseMention(msg)
-    })
+    if (msg) return conn.sendMessage(m.chat, {
+                text: msg,
+                mentions: conn.parseMention(msg)
+            }, {
+                quoted: m
+            })
+    
 }
 
 let file = global.__filename(import.meta.url, true)
