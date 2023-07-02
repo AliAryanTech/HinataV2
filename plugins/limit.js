@@ -20,7 +20,7 @@ ${dmenub} 💳 *Exp:* ${ke2}
 ${dmenub} 🏛️ *Money:* ${ke3}
 ${dmenuf}
 `
-  conn.sendButton(m.chat, caption, global.wm, 'https://telegra.ph/file/0451b07945f7f9633b59b.jpg', [`Inventory`, '.inv'], fakes, adReply)
+  conn.reply(m.chat, caption, fakes, adReply)
 
 }
 handler.help = ['limit [@user]']
