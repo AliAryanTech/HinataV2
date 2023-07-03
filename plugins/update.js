@@ -11,7 +11,7 @@ if (!text) throw `Masukkan Link Repo Github Bot Ini`
 handler.help = ['update']
 handler.tags = ['host']
 handler.command = /^update$/i
-handler.owner = false
+handler.owner = true
 handler.mods = false
 handler.premium = false
 handler.group = false

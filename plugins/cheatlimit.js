@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 
 let handler = async (m, { conn, text, args, usedPrefix, command }) => {
-let cit = ['money',
+let cheat = ['money',
 'limit',
 'level',
 'limit',
@@ -69,23 +69,35 @@ let cit = ['money',
 'sword',
 'tiketcoin',
 'umpan']
+let user = global.db.data.users[m.sender];
+let MaxCheat = 999999999;
 
-let user = global.db.data.users[m.sender]
-let MaxCheat = 999999999
-    let listSections = []
-	Object.keys(cit).map((v, index) => {
-	listSections.push([htki + 'Cheat Num. ' + ++index + ' ' + htka, [
-          ['Infinity ' + cit[v], usedPrefix + command +' cheat ' + cit[v], '\n⌚ *Desc:* Untuk ngechit ' + cit[v]]
-        ]])
-	})
-	if (!args[0]) return conn.sendList(m.chat, htki + ' 📺 Cheat Infinity 🔎 ' + htka, `⚡ Silakan pilih Cheat di tombol di bawah...\n*Teks yang anda kirim:* ${text}\n\nKetik ulang *${usedPrefix + command}* teks anda untuk mengubah teks lagi`, author, `☂️ Cheat Disini ☂️`, listSections, m)
-	if (user[args[1]] > MaxCheat) {
-		m.reply("Udah gitu aja bg, ntar eror")
-		}
-	if (args[0] == 'cheat') {
-		await m.reply(`*Succes Cheat MaxCheat ${args[1]}*`)
-		user[args[1]] = MaxCheat
-		}
+let input = args[0]; // Ganti dengan input yang diinginkan
+let count = args[1]; // Ganti dengan jumlah count yang diinginkan
+
+if (!cheat.includes(input)) {
+  const availableCheats = cheat.map((c, index) => `${index + 1}. ${c}`).join('\n');
+  await m.reply(`Tersedia: list cheat dengan nomor\n${availableCheats}\n\nContoh format: command tipe jumlah`);
+} else {
+  if (!isNaN(count)) {
+    count = parseInt(count);
+    if (count) {
+      user[input] += count;
+    } else {
+      user[input] = MaxCheat;
+    }
+
+    let cheatResults = user[input];
+    await m.reply(`Cheat "${input}" telah dieksekusi.\n\nJumlah cheat saat ini:\n${cheatResults}`);
+  } else {
+    await m.reply('Format jumlah tidak valid.\n\nContoh format: command tipe jumlah');
+  }
+}
+
+if (count && input > MaxCheat) {
+  await m.reply('Lebih');
+}
+
 }
 handler.help = ['ngechit'].map(v => v + ' *hehe..*')
 handler.tags = ['xp']
