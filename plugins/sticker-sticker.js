@@ -47,11 +47,6 @@ let handler = async (m, {
                 await m.reply(eror)
             }
         } else
-        if (/video/g.test(mime)) {
-            if ((q.msg || q).seconds > 11) {
-                await m.reply("Maksimal 10 detik!")
-            }
-        } else
         if (/webp|image|video|gif|viewOnce/g.test(mime)) {
             await m.reply(wait)
             try {
@@ -70,6 +65,7 @@ let handler = async (m, {
                         keepScale: true
                     })
                 } else if (/video/g.test(mime)) {
+                if ((q.msg || q).seconds > 11) return m.reply("Maksimal 10 detik!")
                     out = await sticker(img, false, packname, m.name)
                 } else if (/gif/g.test(mime)) {
                     out = await wibusoft.tools.makeSticker(img, {
