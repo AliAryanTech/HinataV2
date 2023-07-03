@@ -16,75 +16,104 @@ let handler = async (m, {
     usedPrefix,
     command
 }) => {
-    var stiker
-    var out
+    let stiker
+    let out
     let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
 
     if (!args[0]) {
         let q = m.quoted ? m.quoted : m
         let mime = (q.msg || q).mimetype || q.mediaType || ""
         if (getEmojiFromQuotedText(q.text)) {
-            let cari = await semoji(getEmojiFromQuotedText(q.text))
-            let emj = getUrlByName(cari, "whatsapp")
-            out = await wibusoft.tools.makeSticker(emj, {
-                author: packname,
-                pack: m.name,
-                keepScale: true
-            })
-            stiker = out
+            await m.reply(wait)
+            try {
+                let cari = await semoji(getEmojiFromQuotedText(q.text))
+                let emj = getUrlByName(cari, "whatsapp")
+                out = await wibusoft.tools.makeSticker(emj, {
+                    author: packname,
+                    pack: m.name,
+                    keepScale: true
+                })
+                stiker = out
 
-            m.reply(wait)
-            if (stiker) {
-                m.reply(stiker)
-            } else {
-                throw eror
+
+                if (stiker) await conn.sendMessage(m.chat, {
+                    sticker: stiker
+                }, {
+                    quoted: m,
+                    mimetype: 'image/webp',
+                    ephemeralExpiration: 86400
+                })
+            } catch (e) {
+                await m.reply(eror)
             }
-        }
+        } else
         if (/video/g.test(mime)) {
-            if ((q.msg || q).seconds > 11) return m.reply("Maksimal 10 detik!")
-        }
-        if (!/webp|image|video|gif|viewOnce/g.test(mime)) return m.reply("Reply media!")
-        let img = await q.download?.()
+            if ((q.msg || q).seconds > 11) {
+                await m.reply("Maksimal 10 detik!")
+            }
+        } else
+        if (/webp|image|video|gif|viewOnce/g.test(mime)) {
+            await m.reply(wait)
+            try {
+                let img = await q.download?.()
 
-        if (/webp/g.test(mime)) {
-            out = await wibusoft.tools.makeSticker(img, {
-                author: packname,
-                pack: m.name,
-                keepScale: true
-            })
-        } else if (/image/g.test(mime)) {
-            out = await wibusoft.tools.makeSticker(img, {
-                author: packname,
-                pack: m.name,
-                keepScale: true
-            })
-        } else if (/video/g.test(mime)) {
-            out = await sticker(img, false, packname, m.name)
-        } else if (/gif/g.test(mime)) {
-            out = await wibusoft.tools.makeSticker(img, {
-                author: packname,
-                pack: m.name,
-                keepScale: true
-            })
-        } else if (/viewOnce/g.test(mime)) {
-            out = await wibusoft.tools.makeSticker(img, {
-                author: packname,
-                pack: m.name,
-                keepScale: true
-            })
-        }
+                if (/webp/g.test(mime)) {
+                    out = await wibusoft.tools.makeSticker(img, {
+                        author: packname,
+                        pack: m.name,
+                        keepScale: true
+                    })
+                } else if (/image/g.test(mime)) {
+                    out = await wibusoft.tools.makeSticker(img, {
+                        author: packname,
+                        pack: m.name,
+                        keepScale: true
+                    })
+                } else if (/video/g.test(mime)) {
+                    out = await sticker(img, false, packname, m.name)
+                } else if (/gif/g.test(mime)) {
+                    out = await wibusoft.tools.makeSticker(img, {
+                        author: packname,
+                        pack: m.name,
+                        keepScale: true
+                    })
+                } else if (/viewOnce/g.test(mime)) {
+                    out = await wibusoft.tools.makeSticker(img, {
+                        author: packname,
+                        pack: m.name,
+                        keepScale: true
+                    })
+                }
+                stiker = out
 
-        stiker = out
 
-        m.reply(wait)
-        if (stiker) {
-            m.reply(stiker)
-        } else {
-            throw eror
-        }
+                if (stiker) await conn.sendMessage(m.chat, {
+                    sticker: stiker
+                }, {
+                    quoted: m,
+                    mimetype: 'image/webp',
+                    ephemeralExpiration: 86400
+                })
+            } catch (e) {
+                await m.reply(eror)
+            }
+        } else throw "Reply media!"
+
     } else {
         if (isUrl(args[0])) {
-            stiker = await createSticker(false, args[0], packname, m.name, 60)
+            await m.reply(wait)
+            try {
+                stiker = await createSticker(false, args[0], packname, m.name, 60)
+                if (stiker) await conn.sendMessage(m.chat, {
+                    sticker: stiker
+                }, {
+                    quoted: m,
+                    mimetype: 'image/webp',
+                    ephemeralExpiration: 86400
+                })
+            } catch (e) {
+                await m.reply(eror)
+            }
         } else throw "URL tidak valid!"
     }
 }

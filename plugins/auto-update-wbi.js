@@ -12,7 +12,6 @@ let handler = async (m, {
     args
 }) => {
     await m.reply(wait)
-
     try {
         const result = await getArticleContent()
         let faq = formatQA(result.detail.featureName)
@@ -35,12 +34,10 @@ let handler = async (m, {
 
 *Reactions:*\n${reac || 'Tidak diketahui'}\n`
 
-
-        let caption = output
         let icon = await (await conn.getFile(result.detail.ogImage)).data
         let msg = await generateWAMessageFromContent(m.chat, {
             extendedTextMessage: {
-                text: caption,
+                text: output,
                 jpegThumbnail: icon,
                 contextInfo: {
                     mentionedJid: [m.sender],
@@ -65,7 +62,6 @@ let handler = async (m, {
             quoted: m
         })
         await conn.relayMessage(m.chat, msg.message, {})
-
     } catch (e) {
         await m.reply(eror)
     }
@@ -84,7 +80,7 @@ function formatRE(data) {
 }
 
 function capitalizeFirstLetter(text) {
-  return text.charAt(0).toUpperCase() + text.slice(1);
+    return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 async function getArticleContent() {
@@ -106,11 +102,11 @@ async function getArticleContent() {
             };
         }).get();
 
-        const moreLink = articles[1].moreLink;
+        const moreLink = articles[0].moreLink;
         const detail = await getArticleDetail(moreLink.split('#')[0]);
 
         return {
-            articles: articles[1],
+            articles: articles[0],
             detail: detail
         };
     } catch (error) {
@@ -124,10 +120,10 @@ async function getArticleDetail(url) {
     const $ = cheerio.load(html);
 
     const reactionKeys = ['like', 'love', 'senang', 'kaget', 'sedih', 'bingung'];
-const formattedReactions = reactionKeys.map((key, index) => ({
-  name: capitalizeFirstLetter(key),
-  value: $('div.wpra-reaction').eq(index).find('.count-num').text().trim()
-}));
+    const formattedReactions = reactionKeys.map((key, index) => ({
+        name: capitalizeFirstLetter(key),
+        value: $('div.wpra-reaction').eq(index).find('.count-num').text().trim()
+    }));
     const featureName = [];
     $('table.styled-table tr:not(:first-child)').each((index, element) => {
         const name = $(element).find('td:nth-child(1)').text();
