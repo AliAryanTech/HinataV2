@@ -277,7 +277,7 @@ let handler = async (m, {
     command
 }) => {
 
-    await m.reply(wait)
+    return conn.reply(m.chat, wait, m)
 
     let ur = text.split`|`
     let one = ur[0]
@@ -313,159 +313,184 @@ let handler = async (m, {
     } else {
         out = ur[1]
     }
-    let resu
-
-    if (two.endsWith() == 'jpg') {
-        resu = await oxyimage(one, two, Array.from(out.split('|')))
-    } else {
-        try {
-            resu = await oxytext(one, Array.from(out.split('|')))
-        } catch (e) {
-            try {
-                resu = await oxyradio(one, Array.from(out.split('|')))
-            } catch (e) {
-                await m.reply(eror)
-            }
-        }
-        if (resu) return conn.sendFile(m.chat, resu, 'eror.jpg', '*[ Result ]*\n' + one, m)
+    let inputan = Array.from(out.split('|'))
+    try {
+    let resu = await processInput(one, inputan)
+    let proxyurl = 'https://files.xianqiao.wang/';
+    await conn.sendFile(m.chat, proxyurl + resu, 'eror.jpg', '*[ Result ]*\n' + one, m)
+    } catch (e) {
+    await m.reply(wait)
     }
-
 }
 handler.command = /^(photooxy)$/i
 export default handler
 
-function oxytext(url, text) {
-    return new Promise(async (resolve, reject) => {
-        let cookies;
-        let build_server;
-        await axios.request({
-            method: "GET",
-            url,
-            headers: {
-                "User-Agent": "Mozilla/5.0 (Linux; Android 9; CPH1923) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36"
-            }
-        }).then(async ({
-            data,
-            headers
-        }) => {
-            cookies = headers["set-cookie"];
-            const $ = cheerio.load(data);
-            const token = $("input[name='token']").attr("value");
-            build_server = $("input[name='build_server']").attr("value");
-            const build_server_id = $("input[name='build_server_id']").attr("value");
-            const fd = new formData();
-            if (typeof text == "string") text = [text];
-            for (let teks of text) fd.append("text[]", teks);
-            fd.append("submit", "GO");
-            fd.append("token", token);
-            fd.append("build_server", build_server);
-            fd.append("build_server_id", build_server_id);
-            await axios.request({
-                method: "POST",
-                url,
-                data: fd,
-                headers: {
-                    ...fd.getHeaders(),
-                    "User-Agent": "Mozilla/5.0 (Linux; Android 9; CPH1923) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36",
-                    "Cookie": cookies
-                }
-            }).then(async ({
-                data
-            }) => {
-                const $ = cheerio.load(data);
-                const id = JSON.parse($("div.sr-only").text());
-                await axios.request({
-                    method: "POST",
-                    url: "https://photooxy.com/effect/create-image",
-                    data: qs.stringify(id),
-                    headers: {
-                        "User-Agent": "Mozilla/5.0 (Linux; Android 9; CPH1923) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36",
-                        "Cookie": cookies
-                    }
-                }).then(({
-                    data
-                }) => {
-                    resolve(build_server + data.image);
-                }).catch(reject);
-            }).catch(reject);
-        }).catch(reject);
-    });
+async function processInput(url, input) {
+  try {
+    if (Array.isArray(input)) {
+      if (input.length > 1) {
+        return await photooxyRadio(url, input);
+      } else {
+        return await photooxyText(url, input[0]);
+      }
+    } else if (typeof input === 'string' && input.match(/\.(jpeg|jpg|gif|png)$/)) {
+      return await photooxyImage(url, input);
+    } else {
+      return await photooxyText(url, input);
+    }
+  } catch (error) {
+    console.error('Terjadi kesalahan:', error);
+    if (Array.isArray(input) && input.length > 1) {
+      return await photooxyText(url, input);
+    } else {
+      throw error;
+    }
+  }
 }
 
-function oxyradio(url, text) {
-    return new Promise(async (resolve, reject) => {
-        let cookies;
-        let build_server;
-        await axios.request({
-            method: "GET",
-            url,
-            headers: {
-                "User-Agent": "Mozilla/5.0 (Linux; Android 9; CPH1923) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36"
-            }
-        }).then(async ({
-            data,
-            headers
-        }) => {
 
-            const $ = cheerio.load(data);
-            let inputDataRadio = new Array();
-            let inputDataAll = new Array();
-            $("form.ajax-submit").find("input[name='radio0[radio]']").get().map(mapping => {
-                inputDataRadio.push($(mapping).attr("value"));
-            });
-            $("form.ajax-submit").find("input[type='hidden']").get().map(mapping => {
-                inputDataAll.push({
-                    name: $(mapping).attr("name"),
-                    value: $(mapping).attr("value")
-                });
-            });
-            cookies = headers["set-cookie"];
-            build_server = inputDataAll[1].value;
-            const fd = new formData();
-            const randomRadio = inputDataRadio[Math.floor(Math.random() * inputDataRadio.length)];
-            fd.append("radio0[radio]", randomRadio);
-            if (typeof text == "string") text = [text];
-            for (let teks of text) fd.append("text[]", teks);
-            fd.append("submit", "GO");
-            fd.append(inputDataAll[0].name, inputDataAll[0].value);
-            fd.append(inputDataAll[1].name, inputDataAll[1].value);
-            fd.append(inputDataAll[2].name, inputDataAll[2].value);
-            await axios.request({
-                method: "POST",
-                url,
-                data: fd,
-                headers: {
-                    ...fd.getHeaders(),
-                    "User-Agent": "Mozilla/5.0 (Linux; Android 9; CPH1923) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36",
-                    "Cookie": cookies
-                }
-            }).then(async ({
-                data
-            }) => {
-                const $ = cheerio.load(data);
-                const id = $("div.sr-only").text();
-                const parse = JSON.parse(id);
-                const stringify = qs.stringify(parse);
-                await axios.request({
-                    method: "POST",
-                    url: "https://photooxy.com/effect/create-image",
-                    data: stringify,
-                    headers: {
-                        "User-Agent": "Mozilla/5.0 (Linux; Android 9; CPH1923) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36",
-                        "Cookie": cookies
-                    }
-                }).then(({
-                    data
-                }) => {
-
-                    resolve(build_server + data.image);
-                }).catch(reject);
-            }).catch(reject);
-        }).catch(reject);
+async function photooxyText(url, text) {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Linux; Android 9; CPH1923) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36",
+      },
     });
+
+    const cookies = response.headers.get("set-cookie");
+    const data = await response.text();
+
+    const $ = cheerio.load(data);
+    const token = $("input[name='token']").attr("value");
+    const build_server = $("input[name='build_server']").attr("value");
+    const build_server_id = $("input[name='build_server_id']").attr("value");
+
+    const fd = {
+      submit: "GO",
+      token,
+      build_server,
+      build_server_id,
+      text: Array.isArray(text) ? text : [text],
+    };
+
+    const imageResponse = await fetch(url, {
+      method: "POST",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Linux; Android 9; CPH1923) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36",
+        Cookie: cookies,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: qs.stringify(fd),
+    });
+
+    const imageData = await imageResponse.text();
+    const $image = cheerio.load(imageData);
+    const id = JSON.parse($image("div.sr-only").text());
+
+    const createdImageResponse = await fetch(
+      "https://photooxy.com/effect/create-image",
+      {
+        method: "POST",
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Linux; Android 9; CPH1923) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36",
+          Cookie: cookies,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: qs.stringify(id),
+      }
+    );
+
+    const createdImageData = await createdImageResponse.json();
+    const createdImage = createdImageData.image;
+
+    return build_server + createdImage;
+  } catch (error) {
+    throw error;
+  }
 }
 
-function oxyimage(url, link, agent) {
+async function photooxyRadio(url, text) {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Linux; Android 9; CPH1923) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36",
+      },
+    });
+
+    const cookies = response.headers.get("set-cookie");
+    const data = await response.text();
+
+    const $ = cheerio.load(data);
+    const inputDataRadio = $("form.ajax-submit")
+      .find("input[name='radio0[radio]']")
+      .map((_, el) => $(el).attr("value"))
+      .get();
+    const inputDataAll = $("form.ajax-submit")
+      .find("input[type='hidden']")
+      .map((_, el) => ({
+        name: $(el).attr("name"),
+        value: $(el).attr("value"),
+      }))
+      .get();
+
+    const build_server = inputDataAll[1].value;
+
+    const fd = {
+      "radio0[radio]": inputDataRadio[Math.floor(Math.random() * inputDataRadio.length)],
+      "text": Array.isArray(text) ? text : [text],
+      submit: "GO",
+      ...inputDataAll.reduce((acc, { name, value }) => {
+        acc[name] = value;
+        return acc;
+      }, {}),
+    };
+
+    const formData = new URLSearchParams(qs.stringify(fd));
+
+    const imageResponse = await fetch(url, {
+      method: "POST",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Linux; Android 9; CPH1923) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36",
+        Cookie: cookies,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formData,
+    });
+
+    const imageData = await imageResponse.text();
+    const $image = cheerio.load(imageData);
+    const id = JSON.parse($image("div.sr-only").text());
+    const stringify = qs.stringify(id);
+
+    const createdImageResponse = await fetch(
+      "https://photooxy.com/effect/create-image",
+      {
+        method: "POST",
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Linux; Android 9; CPH1923) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36",
+          Cookie: cookies,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: stringify,
+      }
+    );
+
+    const createdImageData = await createdImageResponse.json();
+    const createdImage = createdImageData.image;
+
+    return build_server + createdImage;
+  } catch (error) {
+    throw error;
+  }
+}
+
+function photooxyImage(url, link, agent = '') {
     return new Promise(async (resolve, reject) => {
         let getDataOne = await axios.get(url, {
             headers: {
