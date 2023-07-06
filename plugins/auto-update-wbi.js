@@ -1,5 +1,6 @@
 import fetch from "node-fetch"
 import cheerio from "cheerio"
+import got from "got"
 import {
     generateWAMessageFromContent
 } from "@adiwajshing/baileys"
@@ -13,14 +14,17 @@ let handler = async (m, {
 }) => {
     await m.reply(wait)
     try {
-        const result = await getArticleContent()
+        // Example usage
+        const url = 'https://wabetainfo.com';
+        const result = await WabetaInfo(url);
         let faq = formatQA(result.detail.featureName)
         let reac = formatRE(result.detail.reactions)
+        let prev = formatArrayWithNumbers(result.detail.roundedAlertsImage)
         const output = `*${result.articles.title || 'Tidak diketahui'}*
 
-*Update:*\n${result.articles.date || 'Tidak diketahui'}
+*Update:*\n${result.detail.date || 'Tidak diketahui'}
 
-*Desc:*\n${result.articles.content || 'Tidak diketahui'}
+*Desc:*\n${result.articles.desc || 'Tidak diketahui'}
 
 *Faq:*\n${faq || 'Tidak diketahui'}
 
@@ -28,7 +32,7 @@ let handler = async (m, {
 
 *Content:*\n${result.detail.content || 'Tidak diketahui'}
 
-*Image:*\n${result.detail.roundedAlertsImage || 'Tidak diketahui'}
+*Image:*\n${prev || 'Tidak diketahui'}
 
 *Sharing:*\n${result.detail.socialSharing || 'Tidak diketahui'}
 
@@ -79,62 +83,65 @@ function formatRE(data) {
     return data.map((item, index) => `${item.name}: ${item.value}\n`).join('');
 }
 
-function capitalizeFirstLetter(text) {
-    return text.charAt(0).toUpperCase() + text.slice(1);
+function formatArrayWithNumbers(array) {
+  return array.map((element, index) => `${index + 1}. ${element}`).join('\n');
 }
 
-async function getArticleContent() {
-    const url = 'https://wabetainfo.com';
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
-    try {
-        const response = await fetch(url);
-        const html = await response.text();
-        const $ = cheerio.load(html);
+async function WabetaInfo(url) {
+    const {
+        body
+    } = await got(url);
+    const $ = cheerio.load(body);
 
-        const articles = $('#primary #main article').map((index, element) => {
-            const $article = $(element);
-            return {
-                date: $article.find('time.entry-date.published').text(),
-                link: $article.find('h3.entry-title a').attr('href'),
-                title: $article.find('h3.entry-title a').text(),
-                content: $article.find('div.entry-content').text().trim(),
-                moreLink: $article.find('div.entry-content a.more-link').attr('href')
-            };
-        }).get();
+    const article = $('article').first();
+    const classAttr = article.attr('class');
+    const categoryMatch = classAttr.match(/category-([^\s]+)/);
+    const category = categoryMatch ? categoryMatch[1] : null;
 
-        const moreLink = articles[0].moreLink;
-        const detail = await getArticleDetail(moreLink.split('#')[0]);
-
-        return {
-            articles: articles[0],
-            detail: detail
-        };
-    } catch (error) {
-        console.log(error);
-    }
+    const link = article.find('h3.entry-title a').attr('href');
+    const title = article.find('h3.entry-title a').text();
+    const desc = article.find('.entry-content p').first().text().trim();
+    const published = article.find('time.entry-date.published').attr('datetime');
+    const updated = article.find('time.updated').attr('datetime');
+    const content = article.find('.entry-content').html();
+    const readMoreLink = article.find('.more-link').attr('href');
+    const detail = await getArticleDetail(link);
+    const articles = {
+        category,
+        link,
+        title,
+        desc,
+        published,
+        updated,
+        content,
+        readMoreLink
+    };
+    return {
+        articles: articles,
+        detail: detail
+    };
 }
 
 async function getArticleDetail(url) {
-    const response = await fetch(url);
-    const html = await response.text();
-    const $ = cheerio.load(html);
+    const {
+        body
+    } = await got(url);
+    const $ = cheerio.load(body);
 
-    const reactionKeys = ['like', 'love', 'senang', 'kaget', 'sedih', 'bingung'];
-    const formattedReactions = reactionKeys.map((key, index) => ({
+    const reactionKeys = ['suka', 'love', 'senang', 'kaget', 'sedih', 'bingung'];
+    const formattedReactions = reactionKeys.map(key => ({
         name: capitalizeFirstLetter(key),
-        value: $('div.wpra-reaction').eq(index).find('.count-num').text().trim()
+        value: $(`div.wpra-reaction:nth-child(${reactionKeys.indexOf(key) + 1}) .count-num`).text().trim()
     }));
-    const featureName = [];
-    $('table.styled-table tr:not(:first-child)').each((index, element) => {
-        const name = $(element).find('td:nth-child(1)').text();
-        const value = $(element).find('td:nth-child(2)').text();
-        if (name && value) {
-            featureName.push({
-                name: name,
-                value: value
-            });
-        }
-    });
+
+    const featureName = $('table.styled-table tr:not(:first-child)').map((index, element) => ({
+        name: $(element).find('td:nth-child(1)').text(),
+        value: $(element).find('td:nth-child(2)').text()
+    })).get();
 
     const ogImageUrl = $('meta[property="og:image"]').attr('content');
 
@@ -143,9 +150,9 @@ async function getArticleDetail(url) {
         author: $('a.url.fn.n').text(),
         title: $('h1.entry-title').text(),
         content: $('div.entry-content > p').text(),
-        socialSharing: $('a.share-icon > span').toArray().map(element => $(element).text()),
-        featureName: featureName,
-        roundedAlertsImage: $('p > img[alt=""]').attr('src'),
+        socialSharing: $('a.share-icon > span').map((index, element) => $(element).text()).get(),
+        featureName,
+        roundedAlertsImage: $('div.image-container.vertical img').map((index, element) => $(element).attr('src')).get(),
         reactions: formattedReactions,
         ogImage: ogImageUrl
     };

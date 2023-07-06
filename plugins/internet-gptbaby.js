@@ -13,7 +13,7 @@ await m.reply(wait)
 try {
 // Contoh penggunaan
 let result = await gptBaby(text)
-await m.reply(convertNewline(result.content))
+await m.reply(result)
 } catch (e) {
 await m.reply(eror)
 }
@@ -52,19 +52,16 @@ async function gptBaby(your_qus) {
     });
     
     // Handle the response data here
-    const inputText = await response.text();
-  const arrays = inputText.split('\n');
-  const result = arrays.reduce((acc, item) => {
-    const match = item.match(/"content":"([^"]+)"/);
-    if (match) {
-      const content = match[1];
-      acc.push(content);
-    }
-    return acc;
-  }, []);
+    const inputString = await response.text();
+  const regex = /"content":"([^"]*)"/g;
+  let match;
+  let result = "";
 
-  const mergedContent = { content: result.join('') };
-  return mergedContent;
+  while ((match = regex.exec(inputString))) {
+    result += match[1];
+  }
+
+  return result.replace(/\\n/g, '\n');
   } catch (error) {
     // Handle any errors here
     console.error(error);

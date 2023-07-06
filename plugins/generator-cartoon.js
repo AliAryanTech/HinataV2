@@ -21,7 +21,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 					m.chat,
 					response.download.full,
 					"",
-					,"Operasi berhasil diselesaikan♥>//<",
+					"Operasi berhasil diselesaikan♥>//<",
 					m
 				);
 				let name = await conn.getName(m.sender),
@@ -55,101 +55,110 @@ handler.premium = false
 export default handler;
 
 async function GetBuffer(url) {
-	return new Promise(async (resolve, reject) => {
-		let buffer;
-		await jimp
-			.read(url)
-			.then((image) => {
-				image.getBuffer(image._originalMime, function (err, res) {
-					buffer = res;
-				});
-			})
-			.catch(reject);
-		if (!Buffer.isBuffer(buffer)) reject(false);
-		resolve(buffer);
-	});
+  return new Promise(async (resolve, reject) => {
+    let buffer;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch image');
+      }
+      buffer = await response.arrayBuffer();
+    } catch (error) {
+      reject(error);
+      return;
+    }
+    resolve(Buffer.from(buffer));
+  });
 }
+
 function GetType(Data) {
-	return new Promise((resolve, reject) => {
-		let Result, Status;
-		if (Buffer.isBuffer(Data)) {
-			Result = new Buffer.from(Data).toString("base64");
-			Status = 0;
-		} else {
-			Status = 1;
-		}
-		resolve({
-			status: Status,
-			result: Result,
-		});
-	});
+  return new Promise((resolve, reject) => {
+    let Result, Status;
+    if (Buffer.isBuffer(Data)) {
+      Result = Buffer.from(Data).toString("base64");
+      Status = 0;
+    } else {
+      Status = 1;
+    }
+    resolve({
+      status: Status,
+      result: Result,
+    });
+  });
 }
+
 async function Cartoon(url) {
-	return new Promise(async (resolve, reject) => {
-		let Data;
-		try {
-			let buffer = await GetBuffer(url);
-			let Base64 = await GetType(buffer);
-			await axios
-				.request({
-					url: "https://access1.imglarger.com/PhoAi/Upload",
-					method: "POST",
-					headers: {
-						connection: "keep-alive",
-						accept: "application/json, text/plain, */*",
-						"content-type": "application/json",
-					},
-					data: JSON.stringify({
-						type: 11,
-						base64Image: Base64.result,
-					}),
-				})
-				.then(async ({ data }) => {
-					let code = data.data.code;
-					let type = data.data.type;
-					while (true) {
-						let LopAxios = await axios.request({
-							url: "https://access1.imglarger.com/PhoAi/CheckStatus",
-							method: "POST",
-							headers: {
-								connection: "keep-alive",
-								accept: "application/json, text/plain, */*",
-								"content-type": "application/json",
-							},
-							data: JSON.stringify({
-								code: code,
-								isMember: 0,
-								type: type,
-							}),
-						});
-						let status = LopAxios.data.data.status;
-						if (status == "success") {
-							Data = {
-								message: "success",
-								download: {
-									full: LopAxios.data.data.downloadUrls[0],
-									head: LopAxios.data.data.downloadUrls[1],
-								},
-							};
-							break;
-						} else if (status == "noface") {
-							Data = {
-								message: "noface",
-							};
-							break;
-						}
-					}
-				});
-		} catch (_error) {
-			Data = false;
-		} finally {
-			if (Data == false) {
-				reject(false);
-			}
-			resolve(Data);
-		}
-	});
+  return new Promise(async (resolve, reject) => {
+    let Data;
+    try {
+      const buffer = await GetBuffer(url);
+      const Base64 = await GetType(buffer);
+
+      const uploadUrl = "https://access1.imglarger.com/PhoAi/Upload";
+      const uploadOptions = {
+        method: "POST",
+        headers: {
+          connection: "keep-alive",
+          accept: "application/json, text/plain, */*",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          type: 11,
+          base64Image: Base64.result,
+        }),
+      };
+
+      const { data } = await fetch(uploadUrl, uploadOptions).then((res) =>
+        res.json()
+      );
+      const code = data.code;
+      const type = data.type;
+
+      while (true) {
+        const checkStatusUrl = "https://access1.imglarger.com/PhoAi/CheckStatus";
+        const checkStatusOptions = {
+          method: "POST",
+          headers: {
+            connection: "keep-alive",
+            accept: "application/json, text/plain, */*",
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            code: code,
+            isMember: 0,
+            type: type,
+          }),
+        };
+
+        const { data: { status, downloadUrls } } = await fetch(checkStatusUrl, checkStatusOptions).then((res) => res.json());
+
+        if (status == "success") {
+          Data = {
+            message: "success",
+            download: {
+              full: downloadUrls[0],
+              head: downloadUrls[1],
+            },
+          };
+          break;
+        } else if (status == "noface") {
+          Data = {
+            message: "noface",
+          };
+          break;
+        }
+      }
+    } catch (error) {
+      Data = false;
+    } finally {
+      if (Data == false) {
+        reject(false);
+      }
+      resolve(Data);
+    }
+  });
 }
+
 function randomId() {
-	return Math.floor(100000 + Math.random() * 900000);
+  return Math.floor(100000 + Math.random() * 900000);
 }

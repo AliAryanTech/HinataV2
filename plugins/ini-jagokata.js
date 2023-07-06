@@ -1,35 +1,61 @@
-import axios from "axios"
+import got from "got"
 import cheerio from "cheerio"
 
-let handler = async (m, { conn, text, args, usedPrefix, command }) => {
-if (!text) throw '\nSertakan querinya kak !\n\nContoh: .jagokata Sedih'
-    m.reply(wait)
-    let res = await jagoKata(text)
-    throw res[0].isi + '\n\n' + res[0].by
-}
-handler.help = ['jagokata']
-handler.tags = ['fun']
-handler.command = ['jagokata']
+let handler = async (m, {
+    conn,
+    text,
+    args,
+    usedPrefix,
+    command
+}) => {
+    if (!text) throw "\nSertakan querinya kak !\n\nContoh: .jagokata Sedih"
+    await m.reply(wait)
+    let res = await JagoKata(text)
+    let item = res[0]
+    let result = `🔍 *[ RESULT ]*
 
+💬 *Quote:* ${item.quote || 'Tidak diketahui'}
+🔗 *Link:* ${item.link || 'Tidak diketahui'}
+✍️ *Author:* ${item.author || 'Tidak diketahui'}
+📝 *Description:* ${item.description || 'Tidak diketahui'}
+🕒 *Lifespan:* ${item.lifespan || 'Tidak diketahui'}
+👍 *Votes:* ${item.votes || 0}`
+    await conn.sendFile(m.chat, item.img || logo, "", result, m)
+}
+handler.help = ["jagokata"]
+handler.tags = ["fun"]
+handler.command = ["jagokata"]
 export default handler
+
 /* New Line */
-   async function jagoKata(query) {
-const base = `https://jagokata.com/kata-bijak/kata-${query}.html`
-const des = await axios.get(base)
-const sup = cheerio.load(des.data)
-var page = sup('h4 > strong').eq(2).text() / 10
-page = parseInt(page)
-const randomPage = Math.floor(Math.random() * page)
-const res = await axios.get(`${base}?page=${randomPage}`)
-const $ = cheerio.load(res.data)
-const hasil = []
-const list = $('ul > li')
-const random = Math.floor(Math.random() * 10)
-const isi = $(list).find('q.fbquote').eq(random).text() 
+async function JagoKata(q) {
+    const baseUrl = 'https://jagokata.com/'
+    const response = await got(baseUrl + 'kata-bijak/kata-' + q + '.html?page=0')
+    const $ = cheerio.load(response.body)
 
-var by = $(list).find('div > div > a').eq(random).text()
-by = by ? by : author
-hasil.push({ isi,  by })
-return hasil
+    const quotes = []
+
+    $('#citatenrijen li[id^="q"]').each((index, element) => {
+        const id = $(element).attr('id')
+        const quote = $('.quotebody .fbquote', element).text().trim()
+        const link = baseUrl + $('.citaatopties .images-container a', element).attr('href')
+        const img = $('.quotebody img', element).attr('data-src').trim()
+        const author = $('.quotebody .citatenlijst-auteur a', element).text().trim()
+        const description = $('.quotebody .citatenlijst-auteur .auteur-beschrijving', element).text().trim()
+        const lifespan = $('.quotebody .citatenlijst-auteur .auteur-gebsterf', element).text().trim()
+        const votes = $('.votes-content .votes-positive', element).text().trim()
+
+        quotes.push({
+            id,
+            quote,
+            img,
+            link,
+            author,
+            description,
+            lifespan,
+            votes
+        })
+    })
+
+    return quotes
 }
-
