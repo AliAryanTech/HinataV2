@@ -1,44 +1,195 @@
-import { URL_REGEX } from '@adiwajshing/baileys'
-import { fileTypeFromBuffer } from 'file-type'
-import { Pixiv } from '@ibaraki-douji/pixivts'
-const pixiv = new Pixiv()
+import cheerio from 'cheerio';
+import fetch from 'node-fetch';
 
-let handler = async (m, { conn, text }) => {
-	if (!text) throw 'Input Query / Pixiv Url'
-	let res = await pixivDl(text)
-	await m.reply('_In progress, please wait..._')
-	for (let i = 0; i < res.media.length; i++) {
-		let caption = i == 0 ? `${res.caption}\n\n*By:* ${res.artist}\n*Tags:* ${res.tags.join(', ')}` : ''
-		let mime = (await fileTypeFromBuffer(res.media[i])).mime 
-		await conn.sendMessage(m.chat, { [mime.split('/')[0]]: res.media[i], caption, mimetype: mime }, { quoted: m })
-	}
+let handler = async (m, {
+    conn,
+    args,
+    usedPrefix,
+    text,
+    command
+}) => {
+
+    let lister = [
+        "search",
+        "detail",
+        "r18",
+        "vilipix"
+    ]
+
+    let [feature, inputs, inputs_, inputs__, inputs___] = text.split("|")
+    if (!lister.includes(feature)) return m.reply("*Example:*\n" + usedPrefix + command + " search|manhwa\n\n*Pilih type yg ada*\n" + lister.map((v, index) => "  ○ " + v).join("\n"))
+
+    if (lister.includes(feature)) {
+
+        if (feature == "search") {
+            if (!inputs) return m.reply("Input query link\nExample: " + usedPrefix + command + " search|manhwa")
+            try {
+            await conn.reply(m.chat, wait, m)
+                let res = await fetchPixivSearchResults(inputs)
+                let teks = res.map((item, index) => {
+                    return `🔍 *[ RESULT ${index + 1} ]*
+
+🆔 *ID:* ${item.id || 'Tidak diketahui'}
+📚 *Title:* ${item.title || 'Tidak diketahui'}
+📝 *Type:* ${item.type || 'Tidak diketahui'}
+📝 *Caption:* ${item.caption || 'Tidak diketahui'}
+📅 *Create Date:* ${formatTanggal(item.create_date) || 'Tidak diketahui'}
+👁️ *Total View:* ${item.total_view || 'Tidak diketahui'}`
+                }).filter(v => v).join("\n\n________________________\n\n")
+                await m.reply(teks)
+            } catch (e) {
+                await m.reply(eror)
+            }
+        }
+
+        if (feature == "detail") {
+            if (!inputs) return m.reply("Input query link\nExample: " + usedPrefix + command + " detail|angka")
+            try {
+            await conn.reply(m.chat, wait, m)
+                let item = await fetchPixivIllust(detectArtworkNumber(inputs))
+                let cap = `🔍 *[ RESULT ]*
+
+🆔 *ID:* ${item.id || 'Tidak diketahui'}
+📚 *Title:* ${item.title || 'Tidak diketahui'}
+🔖 *Type:* ${item.type || 'Tidak diketahui'}
+📝 *Caption:* ${item.caption || 'Tidak diketahui'}
+🔒 *Restrict:* ${item.restrict || 'Tidak diketahui'}
+📅 *Create Date:* ${formatTanggal(item.create_date) || 'Tidak diketahui'}
+📄 *Page Count:* ${item.page_count || 'Tidak diketahui'}
+🔍 *Width:* ${item.width || 'Tidak diketahui'}
+🔍 *Height:* ${item.height || 'Tidak diketahui'}
+🧠 *Sanity Level:* ${item.sanity_level || 'Tidak diketahui'}
+🔒 *X Restrict:* ${item.x_restrict || 'Tidak diketahui'}
+👁️ *Total View:* ${item.total_view || 'Tidak diketahui'}
+🔖 *Total Bookmarks:* ${item.total_bookmarks || 'Tidak diketahui'}
+📌 *Is Bookmarked:* ${item.is_bookmarked || 'Tidak diketahui'}
+👀 *Visible:* ${item.visible || 'Tidak diketahui'}
+🔇 *Is Muted:* ${item.is_muted || 'Tidak diketahui'}
+💬 *Total Comments:* ${item.total_comments || 'Tidak diketahui'}
+🧠 *Illust AI Type:* ${item.illust_ai_type || 'Tidak diketahui'}
+📚 *Illust Book Style:* ${item.illust_book_style || 'Tidak diketahui'}
+🔒 *Comment Access Control:* ${item.comment_access_control || 'Tidak diketahui'}
+`
+                await conn.sendFile(m.chat, "https://pixiv.re/" + item.id + ".png" || item.meta_single_page.original_image_url || logo, "", cap, m)
+
+            } catch (e) {
+                await m.reply(eror)
+            }
+        }
+
+        if (feature == "r18") {
+            try {
+            await conn.reply(m.chat, wait, m)
+                let item = await R18()
+                let result = Object.entries(item)
+                    .map(([key, value]) => `	◦  *${key.charAt(0).toUpperCase() + key.slice(1).split('.').join(' ')}* : ${value}`)
+                    .join('\n');
+                await conn.sendFile(m.chat, item.url || logo, "", result, m)
+
+            } catch (e) {
+                await m.reply(eror)
+            }
+        }
+
+        if (feature == "vilipix") {
+            if (isNaN(inputs)) return m.reply("Input query link\nExample: " + usedPrefix + command + " vilipix|angka")
+            try {
+            await conn.reply(m.chat, wait, m)
+                let item = await vilipixRandomImg(inputs)
+                if (inputs >= item.data.count) return m.reply("Input query link\nExample: " + usedPrefix + command + " vilipix|angka\n\nTersedia: " + item.data.count)
+                let result = Object.entries(item.data.rows[0])
+                    .map(([key, value]) => `	◦  *${key.charAt(0).toUpperCase() + key.slice(1).split('.').join(' ')}* : ${value}`)
+                    .join('\n');
+                await conn.sendFile(m.chat, item.data.rows[0].original_url || item.data.rows[0].regular_url || logo, "", result, m)
+
+            } catch (e) {
+                await m.reply(eror)
+            }
+        }
+
+
+    }
 }
-handler.help = handler.alias = ['pixiv']
-handler.tags = ['downloader']
+handler.help = ["pixiv"]
+handler.tags = ["internet"]
 handler.command = /^(pixiv)$/i
-
 export default handler
 
-async function pixivDl(query) {
-	if (query.match(URL_REGEX)) {
-		if (!/https:\/\/www.pixiv.net\/en\/artworks\/[0-9]+/i.test(query)) throw 'Invalid Pixiv Url'
-		query = query.replace(/\D/g, '')
-		let res = await pixiv.getIllustByID(query).catch(() => null)
-		if (!res) throw `ID "${query}" not found :/`
-		let media = []
-		for (let x = 0; x < res.urls.length; x++) media.push(await pixiv.download(new URL(res.urls[x].original)))
-		return {
-			artist: res.user.name, caption: res.title, tags: res.tags.tags.map(v => v.tag), media
-		}
-	} else {
-		let res = await pixiv.getIllustsByTag(query)
-		if (!res.length) throw `Tag's "${query}" not found :/`
-		res = res[~~(Math.random() * res.length)].id
-		res = await pixiv.getIllustByID(res)
-		let media = []
-		for (let x = 0; x < res.urls.length; x++) media.push(await pixiv.download(new URL(res.urls[x].original)))
-		return {
-			artist: res.user.name, caption: res.title, tags: res.tags.tags.map(v => v.tag), media
-		}
-	}
+/* New Line */
+
+function formatTanggal(tanggal) {
+    const dateObj = new Date(tanggal);
+    const options = {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+    };
+    const formattedDate = dateObj.toLocaleDateString('id-ID', options);
+    return formattedDate;
+}
+
+function detectArtworkNumber(input) {
+    const regex = /(\d+)/; // Ekspresi reguler untuk mencocokkan angka
+
+    // Jika input adalah URL, ekstrak nomor dari URL
+    if (typeof input === 'string' && input.startsWith('https://www.pixiv.net/en/artworks/')) {
+        const match = input.match(regex);
+        if (match) {
+            return match[0];
+        }
+    }
+
+    // Jika input bukan URL, langsung mencocokkan angka
+    if (typeof input === 'number') {
+        const match = String(input).match(regex);
+        if (match) {
+            return match[0];
+        }
+    }
+
+    return null; // Jika tidak ada angka yang terdeteksi
+}
+
+async function fetchPixivSearchResults(word) {
+    try {
+        const response = await fetch(`http://api.obfs.dev/api/pixiv/search?word=${encodeURIComponent(word)}`);
+        const data = await response.json();
+        return data.illusts;
+    } catch (error) {
+        console.log('An error occurred while fetching Pixiv search results:', error);
+        throw error;
+    }
+}
+
+async function fetchPixivIllust(id) {
+    try {
+        const response = await fetch(`http://api.obfs.dev/api/pixiv/illust?id=${id}`);
+        const data = await response.json();
+        return data.illust;
+    } catch (error) {
+        console.log('An error occurred while fetching Pixiv illust:', error);
+        throw error;
+    }
+}
+
+async function R18() {
+    try {
+        const response = await fetch("https://image.anosu.top/pixiv/json?r18=1");
+        const data = await response.json();
+        return data[0];
+    } catch (error) {
+        console.log('An error occurred while fetching Pixiv illust:', error);
+        throw error;
+    }
+}
+
+async function vilipixRandomImg(offset) {
+    try {
+        const response = await fetch(`https://www.vilipix.com/api/v1/picture/recommand?limit=1&offset=${offset}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.log('An error occurred while fetching Pixiv illust:', error);
+        throw error;
+    }
 }

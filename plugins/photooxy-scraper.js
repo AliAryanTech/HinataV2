@@ -276,9 +276,7 @@ let handler = async (m, {
     args,
     command
 }) => {
-
-    return conn.reply(m.chat, wait, m)
-
+    await conn.reply(m.chat, wait, m)
     let ur = text.split`|`
     let one = ur[0]
     let two = ur[1]
@@ -313,13 +311,34 @@ let handler = async (m, {
     } else {
         out = ur[1]
     }
-    let inputan = Array.from(out.split('|'))
+    let input = Array.from(out.split('|'))
+    let imgoxy
+    
     try {
-    let resu = await processInput(one, inputan)
-    let proxyurl = 'https://files.xianqiao.wang/';
-    await conn.sendFile(m.chat, proxyurl + resu, 'eror.jpg', '*[ Result ]*\n' + one, m)
+    if (Array.isArray(input)) {
+      if (input.length > 1) {
+        imgoxy = await photooxyRadio(one, input);
+      } else {
+        imgoxy = await photooxyText(one, input[0]);
+      }
+    } else if (typeof input === 'string' && input.match(/\.(jpeg|jpg|gif|png)$/)) {
+      imgoxy = await photooxyImage(one, input);
+    } else {
+      imgoxy = await photooxyText(one, input);
+    }
+  } catch (error) {
+    console.error('Terjadi kesalahan:', error);
+    if (Array.isArray(input) && input.length > 1) {
+      imgoxy = await photooxyText(one, input);
+    } else {
+      await m.reply(eror)
+    }
+  }
+  try {
+    await conn.reply(m.chat, "Link: " + imgoxy, m)
+    await conn.sendFile(m.chat, imgoxy, 'eror.jpg', '*[ Result ]*\n' + one, m)
     } catch (e) {
-    await m.reply(wait)
+    await m.reply(eror)
     }
 }
 handler.command = /^(photooxy)$/i
