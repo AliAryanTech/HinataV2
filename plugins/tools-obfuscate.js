@@ -5,16 +5,17 @@ let handler = async (m, {
     command,
     usedPrefix
 }) => {
+const usage = "*Example:*\n" + usedPrefix + command + " (Input text or reply text to enc code)"
+        let text
+    if (args.length >= 1) {
+        text = args.slice(0).join(" ")
+    } else if (m.quoted && m.quoted.text) {
+        text = m.quoted.text
+    } else return m.reply(usage)
+    
    try {
-        const usage = "*Example:*\n" + usedPrefix + command + " (reply to enc code)"
-        if (!m.quoted) return m.reply(usage)
-        const message = await Encrypt(m.quoted.text)
-        if (args.length >= 2) {
-            const texts = args.slice(1).join(" ")
-            const response = await Encrypt(texts)
-            return m.reply(response)
-        }
-        return m.reply(message)
+        const message = await Encrypt(text)
+        await m.reply(message)
    } catch (e) {
        await m.reply(eror)
     }

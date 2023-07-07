@@ -24,7 +24,7 @@ let handler = async (m, {
         if (feature == "search") {
             if (!inputs) return m.reply("Input query link\nExample: " + usedPrefix + command + " search|manhwa")
             try {
-            await conn.reply(m.chat, wait, m)
+            await m.reply(wait)
                 let res = await fetchPixivSearchResults(inputs)
                 let teks = res.map((item, index) => {
                     return `🔍 *[ RESULT ${index + 1} ]*
@@ -44,9 +44,10 @@ let handler = async (m, {
 
         if (feature == "detail") {
             if (!inputs) return m.reply("Input query link\nExample: " + usedPrefix + command + " detail|angka")
+            await m.reply(wait)
+            let IDpixiv = await detectArtworkNumber(Number(inputs))
             try {
-            await conn.reply(m.chat, wait, m)
-                let item = await fetchPixivIllust(detectArtworkNumber(inputs))
+                let item = await fetchPixivIllust(IDpixiv)
                 let cap = `🔍 *[ RESULT ]*
 
 🆔 *ID:* ${item.id || 'Tidak diketahui'}
@@ -79,7 +80,7 @@ let handler = async (m, {
 
         if (feature == "r18") {
             try {
-            await conn.reply(m.chat, wait, m)
+            await m.reply(wait)
                 let item = await R18()
                 let result = Object.entries(item)
                     .map(([key, value]) => `	◦  *${key.charAt(0).toUpperCase() + key.slice(1).split('.').join(' ')}* : ${value}`)
@@ -94,7 +95,7 @@ let handler = async (m, {
         if (feature == "vilipix") {
             if (isNaN(inputs)) return m.reply("Input query link\nExample: " + usedPrefix + command + " vilipix|angka")
             try {
-            await conn.reply(m.chat, wait, m)
+            await m.reply(wait)
                 let item = await vilipixRandomImg(inputs)
                 if (inputs >= item.data.count) return m.reply("Input query link\nExample: " + usedPrefix + command + " vilipix|angka\n\nTersedia: " + item.data.count)
                 let result = Object.entries(item.data.rows[0])
