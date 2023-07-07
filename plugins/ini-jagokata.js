@@ -10,6 +10,7 @@ let handler = async (m, {
 }) => {
     if (!text) throw "\nSertakan querinya kak !\n\nContoh: .jagokata Sedih"
     await m.reply(wait)
+    try {
     let res = await JagoKata(text)
     let item = res[0]
     let result = `🔍 *[ RESULT ]*
@@ -21,6 +22,9 @@ let handler = async (m, {
 🕒 *Lifespan:* ${item.lifespan || 'Tidak diketahui'}
 👍 *Votes:* ${item.votes || 0}`
     await conn.sendFile(m.chat, item.img || logo, "", result, m)
+    } catch (e) {
+    await m.reply(eror)
+    }
 }
 handler.help = ["jagokata"]
 handler.tags = ["fun"]

@@ -16,7 +16,7 @@ let randm = res.data
     let resul = randm.getRandom()
     await m.reply(wait)
     await conn.sendFile(m.chat,
-    resul.url, text, "*[ Result ]*\n" + text, m)
+    resul.url, text, "*[ Result V1 ]*\n" + text, m)
 } catch (e) {
 try {
     let res = await(await fetch('https://lexica.art/api/v1/search?q=' + text)).json()
@@ -24,9 +24,9 @@ try {
     let resul = randm.getRandom()
     await m.reply(wait)
     await conn.sendFile(m.chat, 
-    resul.src, text, "*[ Result ]*\n" + resul.prompt, m)
+    resul.src, text, "*[ Result V2 ]*\n" + resul.prompt, m)
     } catch (e) {
-    throw eror
+    await m.reply(eror)
     }
     }
 }

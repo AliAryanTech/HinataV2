@@ -29,7 +29,9 @@ let handler = async (m, {
 *[ Terjemahan ]*
 - ${res[0][0][0]}
 `
-        await m.reply(caption)
+        await m.reply(caption, null, m.mentionedJid ? {
+        mentions: conn.parseMention(caption)
+    } : {})
     } catch (e) {
         await m.reply(eror)
     }
