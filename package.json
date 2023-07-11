@@ -74,7 +74,7 @@
         "fb-downloader-scrapper": "*",
         "feedid": "*",
         "fg-ig": "*",
-        "file-type": "^16.5.3",
+        "file-type": "*",
         "fluent-ffmpeg": "*",
         "form-data": "^4.0.0",
         "formdata-node": "*",
