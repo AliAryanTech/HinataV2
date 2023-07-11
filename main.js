@@ -27,7 +27,7 @@ import chalk from 'chalk';
 import syntaxerror from 'syntax-error';
 import { tmpdir } from 'os';
 import { format } from 'util';
-import { makeWASocket, protoType, serialize } from './lib/simple.js';
+import { makeWaSocket, protoType, serialize } from './lib/simple.js';
 import { Low, JSONFile } from 'lowdb';
 import {
   mongoDB,
@@ -94,7 +94,7 @@ printQRInTerminal: true,
 auth: state
 }
 
-global.conn = makeWASocket(connectionOptions)
+global.conn = makeWaSocket(connectionOptions)
 conn.isInit = false
 
 if (!opts['test']) {
