@@ -8,8 +8,31 @@ import { createRequire } from "module"
 import { createInterface } from "readline"
 import { setupMaster, fork } from "cluster"
 import { watchFile, unwatchFile } from "fs"
+import chalk from 'chalk'
+import figlet from 'figlet'
 
 // https://stackoverflow.com/a/50052194
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const printMessage = (message, color) => {
+  const lineLength = message.length + 6;
+  const line = '─'.repeat(lineLength);
+
+  const styledMessage = chalk[color](message);
+  const styledLine = chalk[color](line);
+
+  console.log(chalk[color](`╭${line}╮`));
+  console.log(chalk[color](`│  ${styledMessage}  │`));
+  figlet(' ', (err, data) => {
+    if (err) {
+      console.log(chalk[color](`│  ${styledMessage}  │`));
+    } else {
+      console.log(chalk[color](`│  ${data} │`));
+    }
+  });
+  console.log(chalk[color](`╰${line}╯\n`));
+};
+
 const { say } = cfonts
 const rl = createInterface(process.stdin, process.stdout)
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -41,21 +64,12 @@ function start(file) {
     align: "center",
     colors: ["magenta"]
   })
-  say("🌎 MEMUAT SOURCE...", {
-    font: "console",
-    align: "center",
-    colors: ["red"]
-  })
-  say("📑 MEMUAT PLUGINS...", {
-    font: "console",
-    align: "center",
-    colors: ["yellow"]
-  })
-  say("✅ DONE !", {
-    font: "console",
-    align: "center",
-    colors: ["green"]
-  })
+  printMessage('🌎 MEMUAT SOURCE...', 'red');
+  sleep(1000)
+    .then(() => printMessage('📑 MEMUAT PLUGINS...', 'yellow'))
+    .then(() => sleep(1000))
+    .then(() => printMessage('✅ DONE !', 'green'));
+
   setupMaster({
     exec: args[0],
     args: args.slice(1),
@@ -76,7 +90,7 @@ function start(file) {
   })
   p.on("exit", (_, code) => {
     isRunning = false
-    console.error("[❗]Exited with code:", code)
+    console.error("[❗] Exited with code:", code)
     if (code !== 0) return start(file)
     watchFile(args[0], () => {
       unwatchFile(args[0])

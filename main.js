@@ -104,7 +104,8 @@ if (!opts['test']) {
       clearTmp()
 
     } catch (e) { console.error(e) }
-  }, 60 * 1000)
+  }, 3600000)
+  // Tiap 1 jam
 }
 if (opts['server']) (await import('./server.js')).default(global.conn, PORT)
 
@@ -114,10 +115,10 @@ async function clearTmp() {
  readdirSync(tmp).forEach(f => rmSync(`${tmp}/${f}`));
 }
 setInterval(async () => {
-	var a = await clearTmp()
-	var pesan = "The tmp folder has been cleaned"
-	console.log(chalk.cyanBright(pesan))
-}, 180000)
+  await clearTmp();
+  console.log(chalk.cyanBright('The tmp folder has been cleaned'));
+}, 3600000);
+// Tiap 1 jam
 
 /* Update */
 async function connectionUpdate(update) {
@@ -129,7 +130,13 @@ async function connectionUpdate(update) {
     global.timestamp.connect = new Date
   }
   if (global.db.data == null) loadDatabase()
-  if (connection == 'open') { console.log(chalk.yellow('Made by ' + author)) }
+  if (connection === 'open') {
+  const authorText = `Made by ${author}`;
+  const lineLength = authorText.length + 6;
+  const line = '─'.repeat(lineLength);
+
+  console.log(chalk.yellow(`╭${line}╮\n│  ${authorText}  │\n╰${line}╯`));
+}
 }
 
 process.on('uncaughtException', console.error)
