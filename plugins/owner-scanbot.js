@@ -2,7 +2,8 @@ import pkg from '@adiwajshing/baileys'
 const { DisconnectReason, MessageRetryMap, useSingleFileAuthState, fetchLatestBaileysVersion, toBuffer } = pkg 
 import WebSocket from 'ws'
 import qrcode from 'qrcode'
-import { makeWASocket, protoType, serialize } from '../lib/simple.js'
+import { makeWaSocket, protoType, serialize } from './lib/simple.js';
+import store from './lib/store-single.js';
 import fs from 'fs'
 import { createRequire } from 'module'
 const { groupsUpdate } = await(await import('../handler.js'))
@@ -35,7 +36,7 @@ if(conn.user.jid !== conns.user.jid) return m.reply('Tidak bisa membuat Bot pada
     let authFile = 'plugins/jadibot/'+m.sender.split`@`[0]+'.data.json'
     let isInit = !fs.existsSync(authFile)
     let id = global.conns.length
-    let { state, saveState } = useSingleFileAuthState(authFile)
+    let { state, saveState } = store.useSingleFileAuthState(authFile)
     let { version } = await fetchLatestBaileysVersion()
     
 const config = { 
@@ -44,7 +45,7 @@ const config = {
     auth: state, 
     receivedPendingNotifications: false
     }
-    conn = makeWASocket(config)
+    conn = makeWaSocket(config)
     let ev = conn.ev
     
     let date = new Date()
@@ -104,7 +105,7 @@ const config = {
         if (restatConn) {
             try { conn.ws.close() } catch { }
             conn = {
-                ...conn, ...simple.makeWASocket(config)
+                ...conn, ...simple.makeWaSocket(config)
             }
         }
         
