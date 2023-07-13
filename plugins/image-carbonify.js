@@ -1,5 +1,8 @@
 import puppeteer from "puppeteer"
 import fetch from "node-fetch"
+import carbon from "carbon-now-scraper"
+import fs from "fs"
+
 let handler = async (m, {
     conn,
     isOwner,
@@ -16,7 +19,7 @@ let handler = async (m, {
     } else throw query
     await m.reply(wait)
     try {
-        let result = await Carbonify(text)
+        let result = await CarbonifyV1(text)
         await conn.sendFile(m.chat, result, "", "*V1 by:*\n" + m.name, m)
     } catch (e) {
         try {
@@ -27,10 +30,15 @@ let handler = async (m, {
                 let result = await CarbonifyV3(text)
                 await conn.sendFile(m.chat, result, "", "*V3 by:*\n" + m.name, m)
             } catch (e) {
+            try {
+            let result = await CarbonifyV4(text, "./images/auto.png")
+                await conn.sendFile(m.chat, fs.readFileSync("./images/auto.png"), "", "*V4 by:*\n" + m.name, m)
+            } catch (e) {
                 throw eror
             }
         }
     }
+    
 }
 handler.help = ["carbon"]
 handler.tags = ["misc"]
@@ -70,11 +78,11 @@ function convertToParams(myData) {
     return out.join("&");
 };
 
-async function Carbonify(teks) {
+async function CarbonifyV1(teks) {
     const snippets = [{
         name: "Carbonify",
         code: teks
-    }]
+    }];
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setViewport({
@@ -86,21 +94,38 @@ async function Carbonify(teks) {
     for (const snippet of snippets) {
         console.log(`Carbonifying snippet ${index} of ${snippets.length}`);
         await page.goto(
-            `https://carbon.now.sh?${convertToParams(config)}&code=${encodeURI(
-        snippet.code
-      )}`
+            `https://carbon.now.sh?${convertToParams(config)}&code=${encodeURI(snippet.code)}`
         );
 
         const codeContainer = await page.$("#export-container");
         await page.addStyleTag({
             content: ".CodeMirror-sizer{min-height: 0!important}"
         });
-        return await codeContainer.screenshot({
-            path: `./sticker/${snippet.name.split(".")[0]}.png`,
-        });
+
+        const screenshotBuffer = await codeContainer.screenshot({ type: 'png' });
+        const filename = `./images/${snippet.name.split(".")[0]}.png`;
+        fs.writeFileSync(filename, screenshotBuffer);
+
         index++;
     }
     await browser.close();
+    return screenshotBuffer;
+}
+
+async function CarbonifyV2(input) {
+    let Blobs = await fetch("https://carbonara.solopov.dev/api/cook", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "code": input
+            })
+        })
+        .then(response => response.blob())
+    let arrayBuffer = await Blobs.arrayBuffer();
+    let buffer = Buffer.from(arrayBuffer);
+    return buffer
 }
 
 async function CarbonifyV3(input) {
@@ -119,18 +144,12 @@ async function CarbonifyV3(input) {
     return buffer
 }
 
-async function CarbonifyV2(input) {
-    let Blobs = await fetch("https://carbonara.solopov.dev/api/cook", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                "code": input
-            })
-        })
-        .then(response => response.blob())
-    let arrayBuffer = await Blobs.arrayBuffer();
-    let buffer = Buffer.from(arrayBuffer);
-    return buffer
+async function CarbonifyV4(input, output) {
+let options = {
+    lang: "auto",
+    theme: "a11y-dark"
+}
+
+let result = await carbon(input, output, options)
+return result
 }

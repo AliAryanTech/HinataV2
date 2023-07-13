@@ -1,9 +1,8 @@
-import pkg from '@adiwajshing/baileys'
-const { DisconnectReason, MessageRetryMap, useSingleFileAuthState, fetchLatestBaileysVersion, toBuffer } = pkg 
+const { DisconnectReason, MessageRetryMap, useSingleFileAuthState, fetchLatestBaileysVersion, toBuffer } = (await import('@adiwajshing/baileys')).default 
 import WebSocket from 'ws'
 import qrcode from 'qrcode'
-import { makeWaSocket, protoType, serialize } from './lib/simple.js';
-import store from './lib/store-single.js';
+import { makeWaSocket, protoType, serialize } from '../lib/simple.js';
+import store from '../lib/store-single.js';
 import fs from 'fs'
 import { createRequire } from 'module'
 const { groupsUpdate } = await(await import('../handler.js'))
@@ -60,7 +59,7 @@ const config = {
         conn.timestamp = timestamp
         if(qr) {
         	if (!isNumber(global.tryConnect[m.sender])) global.tryConnect[m.sender] = 0
-        	if (global.tryConnect[m.sender] === 5) {
+        	if (global.tryConnect[m.sender] === 3) {
         	    global.tryConnect[m.sender] = 0
                 return m.reply('Waktu scan qr kamu sudah habis!')
             }

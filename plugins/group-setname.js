@@ -5,7 +5,7 @@ let handler = async (m, { conn, text, isROwner, isOwner }) => {
 }
 handler.help = ['setname <teks>']
 handler.tags = ['group']
-handler.command = /^setname$/i
+handler.command = /^(setname)$/i
 handler.botAdmin = true
 handler.group = true
 handler.admin = true
