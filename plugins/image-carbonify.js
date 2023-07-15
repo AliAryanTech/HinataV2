@@ -17,6 +17,7 @@ let handler = async (m, {
     } else if (m.quoted && m.quoted.text) {
         text = m.quoted.text
     } else throw query
+    
     await m.reply(wait)
     try {
         let result = await CarbonifyV1(text)
@@ -38,6 +39,7 @@ let handler = async (m, {
             }
         }
     }
+ }
     
 }
 handler.help = ["carbon"]
